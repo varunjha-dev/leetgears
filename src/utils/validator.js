@@ -7,7 +7,7 @@ const validate = (data)=>{
         throw new Error ("Some Fields are missing");
     if(!validator.isEmail(data.emailId))
         throw new Error("Invalid Email");
-    if(!validator.isStrongPassworda(data.password)){
+    if(!validator.isStrongPassword(data.password)){
         throw new Error("week Password");
     }
 }
