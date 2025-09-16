@@ -60,7 +60,7 @@ const problemSchema = new Schema({
             }
         }
     ],
-    referenceSoloution:[
+    referenceSolution:[
         {
             language:{
                 type:String,
