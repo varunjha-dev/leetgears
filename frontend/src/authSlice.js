@@ -1,5 +1,5 @@
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import axiosClient from './utils/axiosClient'
+  import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+  import axiosClient from './utils/axiosClient';
 
 export const registerUser = createAsyncThunk(
   'auth/register',
@@ -12,7 +12,6 @@ export const registerUser = createAsyncThunk(
     }
   }
 );
-
 
 export const loginUser = createAsyncThunk(
   'auth/login',
@@ -42,7 +41,7 @@ export const logoutUser = createAsyncThunk(
   'auth/logout',
   async (_, { rejectWithValue }) => {
     try {
-      await axiosClient.post('/logout');
+      await axiosClient.post('/user/logout');
       return null;
     } catch (error) {
       return rejectWithValue(error);

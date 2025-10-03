@@ -8,11 +8,18 @@ import { useEffect } from "react";
 function App() {
   
   const dispatch = useDispatch();
-  const {isAuthenticated} = useSelector((state)=>state.auth)
+  const {isAuthenticated,user,loading} = useSelector((state)=>state.auth);
 
   useEffect(()=>{
     dispatch(checkAuth());
   },[dispatch]);
+
+    if (loading) {
+    return <div className="min-h-screen flex items-center justify-center">
+      <span className="loading loading-spinner loading-lg"></span>
+    </div>;
+  }
+  
   return(
     <>
     <Routes>
