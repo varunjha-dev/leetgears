@@ -6,6 +6,7 @@ import { checkAuth } from "./authSlice";
 import { useDispatch,useSelector } from "react-redux";
 import { useEffect } from "react";
 import AdminPanel from "./pages/AdminPanel";
+import ProblemPage from "./pages/ProblemPage";
 function App() {
   
   const dispatch = useDispatch();
@@ -28,6 +29,7 @@ function App() {
       <Route path="/login" element={isAuthenticated?<Navigate to="/" />:<Login></Login>}></Route>
       <Route path="/signup" element={isAuthenticated?<Navigate to="/" />:<Signup></Signup>}></Route>
       <Route path="/admin" element={<AdminPanel/>}></Route>
+      <Route path="/problem/:problemId" element={<ProblemPage/>}></Route>
     </Routes>
     </>
   )

@@ -13,7 +13,7 @@ const createProblem = async (req,res)=>{
         for(const {language,completeCode} of referenceSolution){
         
         const languageId = getLanguageById(language); 
-        console.log("Language ID:", languageId);
+        // console.log("Language ID:", languageId);
         // Batch Submission 
         const submissions = visibleTestCases.map((testcase)=>({
             // source_code:
@@ -32,7 +32,7 @@ const createProblem = async (req,res)=>{
         const testResult = await submitToken(resultToken);
         
         for (const test of testResult){
-            console.log("Judge0 Test Result:", test);
+            // console.log("Judge0 Test Result:", test);
             if(test.status_id !=3){
                return res.status(400).send("Error Occured: Test Case Failed");
             }
@@ -46,7 +46,7 @@ const createProblem = async (req,res)=>{
 
       res.status(201).send("Problem Saved Successfully");
     } catch (err){
-        console.error("Error in createProblem:", err);
+        // console.error("Error in createProblem:", err);
         res.status(400).send("Error: "+err.message);
     }
 }
