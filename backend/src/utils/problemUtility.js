@@ -2,12 +2,9 @@ const axios = require("axios");
 
 const getLanguageById = (lang) => {
     const language = {
-        "c": 50,           // C (GCC 9.2.0)
-        "java": 62,        // Java (OpenJDK 13.0.1) - FIXED
-        "javascript": 63,  // JavaScript (Node.js 12.14.0) - FIXED  
-        "python": 109,     // Python (3.13.2)
-        "go": 95,          // Go (1.18.5)
-        "c++": 105         // C++ (GCC 14.1.0)
+        "c++": 105,         // C++ (GCC 14.1.0)
+        "java": 62,        // Java (OpenJDK 13.0.1)
+        "javascript": 63  // JavaScript (Node.js 12.14.0)
     }
     return language[lang.toLowerCase()];
 }
