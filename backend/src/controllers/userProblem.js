@@ -163,8 +163,9 @@ const submittedProblem = async (req,res) => {
         const userId = req.result._id;
         const problemId = req.params.pid;
         const ans = await Submission.find({userId,problemId});
-        if(ans.length==0)
-            res.status(200).send("No Submission is persent");
+        if(ans.length==0) {
+            return res.status(200).send("No Submission is persent");
+        }
         res.status(200).send(ans);}
    catch (err) {
         res.status(500).send("Internal server error")

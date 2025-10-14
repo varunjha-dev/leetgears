@@ -102,10 +102,10 @@ function Homepage() {
             onChange={(e) => setFilters({...filters, tag: e.target.value})}
           >
             <option value="all">All Tags</option>
-            <option value="array">Array</option>
-            <option value="linkedList">Linked List</option>
-            <option value="graph">Graph</option>
-            <option value="dp">DP</option>
+            <option value="Array">Array</option>
+            <option value="LinkedList">Linked List</option>
+            <option value="Graph">Graph</option>
+            <option value="DP">DP</option>
           </select>
         </div>
 
