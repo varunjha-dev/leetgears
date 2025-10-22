@@ -8,6 +8,7 @@ const redisClient = require("./config/redis")
 const problemRouter = require("./routes/problemCreator")
 const submitRouter = require("./routes/submit")
 const aiRouter = require("./routes/aichatting")
+const videoRouter = require("./routes/videoCreator")
 const cors = require('cors')
 
 // CORS Configuration
@@ -36,6 +37,7 @@ app.use('/user',authRouter);
 app.use('/problem',problemRouter);
 app.use('/submission',submitRouter);
 app.use('/ai',aiRouter);
+app.use("/video",videoRouter);
 
 const PORT = process.env.PORT || 3000;
 

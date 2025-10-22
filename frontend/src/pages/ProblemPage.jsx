@@ -5,6 +5,7 @@ import { useParams } from 'react-router';
 import axiosClient from "../utils/axiosClient"
 import SubmissionHistory from "../components/SubmissionHistory"
 import ChatAi from '../components/ChatAi';
+import Editorial from '../components/Editorial';
 
 const ProblemPage = () => {
   const [problem, setProblem] = useState(null);
@@ -16,7 +17,7 @@ const ProblemPage = () => {
   const [activeLeftTab, setActiveLeftTab] = useState('description');
   const [activeRightTab, setActiveRightTab] = useState('code');
   const editorRef = useRef(null);
-  let {problemId}  = useParams();
+  let {id}  = useParams();
 
   const { handleSubmit } = useForm();
 
@@ -26,7 +27,7 @@ const ProblemPage = () => {
       setLoading(true);
       try {
         
-        const response = await axiosClient.get(`/problem/problemById/${problemId}`);
+        const response = await axiosClient.get(`/problem/problemById/${id}`);
         
         const initialCode = response.data.startCode.find((sc) => {
         
@@ -56,7 +57,7 @@ const ProblemPage = () => {
     };
 
     fetchProblem();
-  }, [problemId]);
+  }, [id]);
 
   // Update code when language changes
   useEffect(() => {
@@ -83,7 +84,7 @@ const ProblemPage = () => {
     setRunResult(null);
     
     try {
-      const response = await axiosClient.post(`/submission/run/${problemId}`, {
+      const response = await axiosClient.post(`/submission/run/${id}`, {
         code,
         language: selectedLanguage
       });
@@ -108,7 +109,7 @@ const ProblemPage = () => {
     setSubmitResult(null);
     
     try {
-        const response = await axiosClient.post(`/submission/submit/${problemId}`, {
+        const response = await axiosClient.post(`/submission/submit/${id}`, {
         code:code,
         language: selectedLanguage
       });
@@ -231,7 +232,7 @@ const ProblemPage = () => {
                 <div className="prose max-w-none">
                   <h2 className="text-xl font-bold mb-4">Editorial</h2>
                   <div className="whitespace-pre-wrap text-sm leading-relaxed">
-                    {'Editorial is here for the problem'}
+                    <Editorial secureUrl={problem.secureUrl} thumbnailUrl={problem.thumbnailUrl} duration={problem.duration}/>
                   </div>
                 </div>
               )}
@@ -260,7 +261,7 @@ const ProblemPage = () => {
                 <div>
                   <h2 className="text-xl font-bold mb-4">My Submissions</h2>
                   <div className="text-gray-500">
-                   <SubmissionHistory problemId={problemId} />
+                   <SubmissionHistory problemId={id} />
                   </div>
                 </div>
               )}
