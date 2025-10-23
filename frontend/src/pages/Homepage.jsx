@@ -3,8 +3,28 @@ import { NavLink } from 'react-router';
 import { useDispatch, useSelector } from 'react-redux';
 import axiosClient from '../utils/axiosClient';
 import { logoutUser } from '../authSlice';
+import { BrainCircuit, Sun, Moon, CheckCircle } from 'lucide-react';
 
 function Homepage() {
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    const savedMode = localStorage.getItem('theme');
+    return savedMode === 'dark';
+  });
+
+  useEffect(() => {
+    if (isDarkMode) {
+      document.documentElement.setAttribute('data-theme', 'dark');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      document.documentElement.setAttribute('data-theme', 'light');
+      localStorage.setItem('theme', 'light');
+    }
+  }, [isDarkMode]);
+
+  const toggleDarkMode = () => {
+    setIsDarkMode((prevMode) => !prevMode);
+  };
+
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
   const [problems, setProblems] = useState([]);
@@ -52,20 +72,26 @@ function Homepage() {
   });
 
   return (
-    <div className="min-h-screen bg-base-200">
+    <div className={`min-h-screen ${isDarkMode ? 'bg-[#282828] text-white' : 'bg-base-200'}`}>
       {/* Navigation Bar */}
-      <nav className="navbar bg-base-100 shadow-lg px-4">
+      <nav className={`navbar ${isDarkMode ? 'bg-[#282828] shadow-lg' : 'bg-base-100 shadow-lg'} px-4`}>
         <div className="flex-1">
-          <NavLink to="/" className="btn btn-ghost text-xl">Leetgears</NavLink>
+          <NavLink to="/" className="btn btn-ghost text-xl normal-case text-white">
+            <BrainCircuit size={24} className="text-green-500 mr-2" />
+            <span className={`${isDarkMode ? 'text-white' : 'text-gray-800'}`}>LeetGears</span>
+          </NavLink>
         </div>
         <div className="flex-none gap-4">
+          <button onClick={toggleDarkMode} className="btn btn-ghost btn-circle">
+            {isDarkMode ? <Sun size={24} /> : <Moon size={24} />}
+          </button>
           <div className="dropdown dropdown-end">
             <div tabIndex={0} className="btn btn-ghost">
               {user?.firstName}
             </div>
-            <ul className="mt-3 p-2 shadow menu menu-sm dropdown-content bg-base-100 rounded-box w-52">
+            <ul className={`mt-3 p-2 shadow menu menu-sm dropdown-content ${isDarkMode ? 'bg-gray-700' : 'bg-base-100'} rounded-box w-52`}>
               <li><button onClick={handleLogout}>Logout</button></li>
-              {user.role=='admin'&&<li><NavLink to="/admin">Admin</NavLink></li>}
+              {user.role === 'admin' && <li><NavLink to="/admin">Admin</NavLink></li>}
             </ul>
           </div>
         </div>
@@ -77,7 +103,7 @@ function Homepage() {
         <div className="flex flex-wrap gap-4 mb-6">
           {/* New Status Filter */}
           <select 
-            className="select select-bordered"
+            className={`select select-bordered ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : ''}`}
             value={filters.status}
             onChange={(e) => setFilters({...filters, status: e.target.value})}
           >
@@ -86,7 +112,7 @@ function Homepage() {
           </select>
 
           <select 
-            className="select select-bordered"
+            className={`select select-bordered ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : ''}`}
             value={filters.difficulty}
             onChange={(e) => setFilters({...filters, difficulty: e.target.value})}
           >
@@ -97,7 +123,7 @@ function Homepage() {
           </select>
 
           <select 
-            className="select select-bordered"
+            className={`select select-bordered ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : ''}`}
             value={filters.tag}
             onChange={(e) => setFilters({...filters, tag: e.target.value})}
           >
@@ -112,19 +138,17 @@ function Homepage() {
         {/* Problems List */}
         <div className="grid gap-4">
           {filteredProblems.map(problem => (
-            <div key={problem._id} className="card bg-base-100 shadow-xl">
+            <div key={problem._id} className={`card shadow-xl ${isDarkMode ? 'bg-gray-800 text-white' : 'bg-base-100'}`}>
               <div className="card-body">
                 <div className="flex items-center justify-between">
                   <h2 className="card-title">
-                    <NavLink to={`/problem/${problem._id}`} className="hover:text-primary">
+                    <NavLink to={`/problem/${problem._id}`} className={`${isDarkMode ? 'hover:text-green-400 text-white' : 'hover:text-green-400 text-gray-800'}`}>
                       {problem.title}
                     </NavLink>
                   </h2>
                   {solvedProblems.some(sp => sp._id === problem._id) && (
                     <div className="badge badge-success gap-2">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                      </svg>
+                      <CheckCircle size={16} />
                       Solved
                     </div>
                   )}

@@ -14,12 +14,10 @@ const createProblem = async (req,res)=>{
         for(const {language,completeCode} of referenceSolution){
         
         const languageId = getLanguageById(language); 
-        // console.log("Language ID:", languageId);
         // Batch Submission 
         const submissions = visibleTestCases.map((testcase)=>({
             // source_code:
             source_code:completeCode,
-            // language_id:
             language_id: languageId,
             // stdin: 
             stdin: testcase.input,
@@ -67,32 +65,36 @@ const updateProblem = async (req,res)=>{
             return res.status(404).send("ID is not Present in server")
         }
         
-        for(const {language,completeCode} of referenceSolution){
-        
-        const languageId = getLanguageById(language); 
-        // Batch Submission 
-        const submissions = visibleTestCases.map((testcase)=>({
-            // source_code:
-            source_code:completeCode,
-            // language_id:
-            language_id: languageId,
-            // stdin: 
-            stdin: testcase.input,
-            // expectedOutput:
-            expected_output: testcase.output
-        }));
-        const submitResult = await submitBatch(submissions);
+        // Validate and process referenceSolution only if it exists and is an array
+        if (referenceSolution && Array.isArray(referenceSolution)) {
+            for(const {language,completeCode} of referenceSolution){
+            
+            const languageId = getLanguageById(language); 
+            // console.log("Language:", language, "Language ID:", languageId);
+            // Batch Submission 
+            const submissions = visibleTestCases.map((testcase)=>({
+                // source_code:
+                source_code:completeCode,
+                language_id: languageId,
+                // stdin: 
+                stdin: testcase.input,
+                // expectedOutput:
+                expected_output: testcase.output
+            }));
+            // console.log("Submissions sent to Judge0:", submissions);
+            const submitResult = await submitBatch(submissions);
 
-        const resultToken = submitResult.map((value)=> value.token);
+            const resultToken = submitResult.map((value)=> value.token);
 
-        const testResult = await submitToken(resultToken);
-        
-        for (const test of testResult){
-            if(test.status_id !=3){
-               return res.status(400).send("Error Occured")
+            const testResult = await submitToken(resultToken);
+            
+            for (const test of testResult){
+                if(test.status_id !=3){
+                return res.status(400).send("Error Occured")
+                }
             }
         }
-     }
+    }
    const newProblem = await Problem.findByIdAndUpdate (id , {...req.body},{runValidators:true, new:true});
    res.status(200).send(newProblem);
     } catch (err){

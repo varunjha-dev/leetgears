@@ -6,8 +6,28 @@ import axiosClient from "../utils/axiosClient"
 import SubmissionHistory from "../components/SubmissionHistory"
 import ChatAi from '../components/ChatAi';
 import Editorial from '../components/Editorial';
+import { BrainCircuit, Sun, Moon } from 'lucide-react';
 
 const ProblemPage = () => {
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    const savedMode = localStorage.getItem('theme');
+    return savedMode === 'dark';
+  });
+
+  useEffect(() => {
+    if (isDarkMode) {
+      document.documentElement.setAttribute('data-theme', 'dark');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      document.documentElement.setAttribute('data-theme', 'light');
+      localStorage.setItem('theme', 'light');
+    }
+  }, [isDarkMode]);
+
+  const toggleDarkMode = () => {
+    setIsDarkMode((prevMode) => !prevMode);
+  };
+
   const [problem, setProblem] = useState(null);
   const [selectedLanguage, setSelectedLanguage] = useState('javascript');
   const [code, setCode] = useState('');
@@ -153,37 +173,51 @@ const ProblemPage = () => {
   }
 
   return (
-    <div className="h-screen flex bg-base-100">
+    <div className={`h-screen flex ${isDarkMode ? 'bg-[#282828] text-white' : 'bg-base-100'}`}>
       {/* Left Panel */}
-      <div className="w-1/2 flex flex-col border-r border-base-300">
+      <div className={`w-1/2 flex flex-col ${isDarkMode ? 'border-gray-700' : 'border-base-300'}`}>
+        {/* Header for Left Panel */}
+        <div className={`navbar ${isDarkMode ? 'bg-[#282828]' : 'bg-base-100'} shadow-lg px-4`}>
+          <div className="flex-1">
+            <a className="btn btn-ghost text-xl normal-case">
+              <BrainCircuit size={24} className="text-green-500 mr-2" /> 
+              <span className={`${isDarkMode ? 'text-white' : 'text-gray-800'}`}>LeetGears</span>
+            </a>
+          </div>
+          <div className="flex-none">
+            <button onClick={toggleDarkMode} className="btn btn-ghost btn-circle">
+              {isDarkMode ? <Sun size={24} className="text-white" /> : <Moon size={24} className="text-gray-800" />}
+            </button>
+          </div>
+        </div>
         {/* Left Tabs */}
-        <div className="tabs tabs-bordered bg-base-200 px-4">
+        <div className={`tabs tabs-bordered ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-base-200'} px-4`}>
           <button 
-            className={`tab ${activeLeftTab === 'description' ? 'tab-active' : ''}`}
+            className={`tab ${activeLeftTab === 'description' ? (isDarkMode ? 'tab-active text-white' : 'tab-active') : (isDarkMode ? 'text-gray-300' : '')}`}
             onClick={() => setActiveLeftTab('description')}
           >
             Description
           </button>
           <button 
-            className={`tab ${activeLeftTab === 'editorial' ? 'tab-active' : ''}`}
+            className={`tab ${activeLeftTab === 'editorial' ? (isDarkMode ? 'tab-active text-white' : 'tab-active') : (isDarkMode ? 'text-gray-300' : '')}`}
             onClick={() => setActiveLeftTab('editorial')}
           >
             Editorial
           </button>
           <button 
-            className={`tab ${activeLeftTab === 'solutions' ? 'tab-active' : ''}`}
+            className={`tab ${activeLeftTab === 'solutions' ? (isDarkMode ? 'tab-active text-white' : 'tab-active') : (isDarkMode ? 'text-gray-300' : '')}`}
             onClick={() => setActiveLeftTab('solutions')}
           >
             Solutions
           </button>
           <button 
-            className={`tab ${activeLeftTab === 'submissions' ? 'tab-active' : ''}`}
+            className={`tab ${activeLeftTab === 'submissions' ? (isDarkMode ? 'tab-active text-white' : 'tab-active') : (isDarkMode ? 'text-gray-300' : '')}`}
             onClick={() => setActiveLeftTab('submissions')}
           >
             Submissions
           </button>
           <button 
-            className={`tab ${activeLeftTab === 'chatAI' ? 'tab-active' : ''}`}
+            className={`tab ${activeLeftTab === 'chatAI' ? (isDarkMode ? 'tab-active text-white' : 'tab-active') : (isDarkMode ? 'text-gray-300' : '')}`}
             onClick={() => setActiveLeftTab('chatAI')}
           >
             Chat with AI
@@ -201,7 +235,7 @@ const ProblemPage = () => {
                     <div className={`badge badge-outline ${getDifficultyColor(problem.difficulty)}`}>
                       {problem.difficulty.charAt(0).toUpperCase() + problem.difficulty.slice(1)}
                     </div>
-                    <div className="badge badge-primary">{problem.tags}</div>
+                    <div className="badge badge-info">{problem.tags}</div>
                   </div>
 
                   <div className="prose max-w-none">
@@ -214,7 +248,7 @@ const ProblemPage = () => {
                     <h3 className="text-lg font-semibold mb-4">Examples:</h3>
                     <div className="space-y-4">
                       {problem.visibleTestCases.map((example, index) => (
-                        <div key={index} className="bg-base-200 p-4 rounded-lg">
+                        <div key={index} className={`p-4 rounded-lg ${isDarkMode ? 'bg-gray-800' : 'bg-base-200'}`}>
                           <h4 className="font-semibold mb-2">Example {index + 1}:</h4>
                           <div className="space-y-2 text-sm font-mono">
                             <div><strong>Input:</strong> {example.input}</div>
@@ -242,17 +276,17 @@ const ProblemPage = () => {
                   <h2 className="text-xl font-bold mb-4">Solutions</h2>
                   <div className="space-y-6">
                     {problem.referenceSolution?.map((solution, index) => (
-                      <div key={index} className="border border-base-300 rounded-lg">
-                        <div className="bg-base-200 px-4 py-2 rounded-t-lg">
+                      <div key={index} className={`rounded-lg ${isDarkMode ? 'border border-gray-700' : 'border border-base-300'}`}>
+                        <div className={`px-4 py-2 rounded-t-lg ${isDarkMode ? 'bg-gray-800' : 'bg-base-200'}`}>
                           <h3 className="font-semibold">{problem?.title} - {solution?.language}</h3>
                         </div>
                         <div className="p-4">
-                          <pre className="bg-base-300 p-4 rounded text-sm overflow-x-auto">
+                          <pre className={`p-4 rounded text-sm overflow-x-auto ${isDarkMode ? 'bg-gray-900 text-gray-100' : 'bg-base-300'}`}>
                             <code>{solution?.completeCode}</code>
                           </pre>
                         </div>
                       </div>
-                    )) || <p className="text-gray-500">Solutions will be available after you solve the problem.</p>}
+                    )) || <p className={`text-gray-500 ${isDarkMode ? 'text-gray-400' : ''}`}>Solutions will be available after you solve the problem.</p>}
                   </div>
                 </div>
               )}
@@ -260,7 +294,7 @@ const ProblemPage = () => {
               {activeLeftTab === 'submissions' && (
                 <div>
                   <h2 className="text-xl font-bold mb-4">My Submissions</h2>
-                  <div className="text-gray-500">
+                  <div className={`text-gray-500 ${isDarkMode ? 'text-gray-400' : ''}`}>
                    <SubmissionHistory problemId={id} />
                   </div>
                 </div>
@@ -281,21 +315,21 @@ const ProblemPage = () => {
       {/* Right Panel */}
       <div className="w-1/2 flex flex-col">
         {/* Right Tabs */}
-        <div className="tabs tabs-bordered bg-base-200 px-4">
+        <div className={`tabs tabs-bordered ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-base-200'} px-4`}>
           <button 
-            className={`tab ${activeRightTab === 'code' ? 'tab-active' : ''}`}
+            className={`tab ${activeRightTab === 'code' ? (isDarkMode ? 'tab-active text-white' : 'tab-active') : (isDarkMode ? 'text-gray-300' : '')}`}
             onClick={() => setActiveRightTab('code')}
           >
             Code
           </button>
           <button 
-            className={`tab ${activeRightTab === 'testcase' ? 'tab-active' : ''}`}
+            className={`tab ${activeRightTab === 'testcase' ? (isDarkMode ? 'tab-active text-white' : 'tab-active') : (isDarkMode ? 'text-gray-300' : '')}`}
             onClick={() => setActiveRightTab('testcase')}
           >
             Testcase
           </button>
           <button 
-            className={`tab ${activeRightTab === 'result' ? 'tab-active' : ''}`}
+            className={`tab ${activeRightTab === 'result' ? (isDarkMode ? 'tab-active text-white' : 'tab-active') : (isDarkMode ? 'text-gray-300' : '')}`}
             onClick={() => setActiveRightTab('result')}
           >
             Result
@@ -307,12 +341,12 @@ const ProblemPage = () => {
           {activeRightTab === 'code' && (
             <div className="flex-1 flex flex-col">
               {/* Language Selector */}
-              <div className="flex justify-between items-center p-4 border-b border-base-300">
+              <div className={`flex justify-between items-center p-4 ${isDarkMode ? 'border-b border-gray-700 bg-gray-800' : 'border-b border-base-300'}`}>
                 <div className="flex gap-2">
                   {['javascript', 'java', 'cpp'].map((lang) => (
                     <button
                       key={lang}
-                      className={`btn btn-sm ${selectedLanguage === lang ? 'btn-primary' : 'btn-ghost'}`}
+                      className={`btn btn-sm ${selectedLanguage === lang ? 'btn-primary bg-[#00A68A] hover:bg-[#008F77] border-none text-white' : (isDarkMode ? 'btn-ghost text-gray-300 hover:bg-gray-700' : 'btn-ghost')}`}
                       onClick={() => handleLanguageChange(lang)}
                     >
                       {lang === 'cpp' ? 'C++' : lang === 'javascript' ? 'JavaScript' : 'Java'}
@@ -329,7 +363,7 @@ const ProblemPage = () => {
                   value={code}
                   onChange={handleEditorChange}
                   onMount={handleEditorDidMount}
-                  theme="vs-dark"
+                  theme={isDarkMode ? "vs-dark" : "vs-light"}
                   options={{
                     fontSize: 14,
                     minimap: { enabled: false },
@@ -349,15 +383,14 @@ const ProblemPage = () => {
                     readOnly: false,
                     cursorStyle: 'line',
                     mouseWheelZoom: true,
-                  }}
-                />
+                  }}/>
               </div>
 
               {/* Action Buttons */}
-              <div className="p-4 border-t border-base-300 flex justify-between">
+              <div className={`p-4 border-t ${isDarkMode ? 'border-gray-700 bg-gray-800' : 'border-base-300'} flex justify-between`}>
                 <div className="flex gap-2">
                   <button 
-                    className="btn btn-ghost btn-sm"
+                    className={`btn btn-ghost btn-sm ${isDarkMode ? 'text-gray-300 hover:bg-gray-700' : ''}`}
                     onClick={() => setActiveRightTab('testcase')}
                   >
                     Console
@@ -365,14 +398,14 @@ const ProblemPage = () => {
                 </div>
                 <div className="flex gap-2">
                   <button
-                    className={`btn btn-outline btn-sm ${loading ? 'loading' : ''}`}
+                    className={`btn btn-outline btn-sm ${loading ? 'loading' : ''} ${isDarkMode ? 'text-green-400 border-green-400 hover:bg-green-700 hover:border-green-700' : ''}`}
                     onClick={handleRun}
                     disabled={loading}
                   >
                     Run
                   </button>
                   <button
-                    className={`btn btn-primary btn-sm ${loading ? 'loading' : ''}`}
+                    className={`btn btn-primary btn-sm ${loading ? 'loading' : ''} bg-[#00A68A] hover:bg-[#008F77] border-none text-white`}
                     onClick={handleSubmitCode}
                     disabled={loading}
                   >
@@ -387,7 +420,7 @@ const ProblemPage = () => {
             <div className="flex-1 p-4 overflow-y-auto">
               <h3 className="font-semibold mb-4">Test Results</h3>
               {runResult ? (
-                <div className={`alert ${runResult.success ? 'alert-success' : 'alert-error'} mb-4`}>
+                <div className={`alert ${runResult.success ? 'alert-success' : 'alert-error'} mb-4 ${isDarkMode ? 'bg-gray-800 text-white' : ''}`}>
                   <div>
                     {runResult.success ? (
                       <div>
@@ -397,12 +430,12 @@ const ProblemPage = () => {
                         
                         <div className="mt-4 space-y-2">
                           {runResult.testCases.map((tc, i) => (
-                            <div key={i} className="bg-base-100 p-3 rounded text-xs">
+                            <div key={i} className={`p-3 rounded text-xs ${isDarkMode ? 'bg-gray-900' : 'bg-base-100'}`}>
                               <div className="font-mono">
                                 <div><strong>Input:</strong> {tc.stdin}</div>
                                 <div><strong>Expected:</strong> {tc.expected_output}</div>
                                 <div><strong>Output:</strong> {tc.stdout}</div>
-                                <div className={'text-green-600'}>
+                                <div className={'text-green-500'}>
                                   {'✓ Passed'}
                                 </div>
                               </div>
@@ -415,12 +448,12 @@ const ProblemPage = () => {
                         <h4 className="font-bold">❌ Error</h4>
                         <div className="mt-4 space-y-2">
                           {runResult.testCases.map((tc, i) => (
-                            <div key={i} className="bg-base-100 p-3 rounded text-xs">
+                            <div key={i} className={`p-3 rounded text-xs ${isDarkMode ? 'bg-gray-900' : 'bg-base-100'}`}>
                               <div className="font-mono">
                                 <div><strong>Input:</strong> {tc.stdin}</div>
                                 <div><strong>Expected:</strong> {tc.expected_output}</div>
                                 <div><strong>Output:</strong> {tc.stdout}</div>
-                                <div className={tc.status_id==3 ? 'text-green-600' : 'text-red-600'}>
+                                <div className={tc.status_id==3 ? 'text-green-500' : 'text-red-500'}>
                                   {tc.status_id==3 ? '✓ Passed' : '✗ Failed'}
                                 </div>
                               </div>
@@ -432,7 +465,7 @@ const ProblemPage = () => {
                   </div>
                 </div>
               ) : (
-                <div className="text-gray-500">
+                <div className={`text-gray-500 ${isDarkMode ? 'text-gray-400' : ''}`}>
                   Click "Run" to test your code with the example test cases.
                 </div>
               )}
@@ -443,7 +476,7 @@ const ProblemPage = () => {
             <div className="flex-1 p-4 overflow-y-auto">
               <h3 className="font-semibold mb-4">Submission Result</h3>
               {submitResult ? (
-                <div className={`alert ${submitResult.accepted ? 'alert-success' : 'alert-error'}`}>
+                <div className={`alert ${submitResult.accepted ? 'alert-success' : 'alert-error'} ${isDarkMode ? 'bg-gray-800 text-white' : ''}`}>
                   <div>
                     {submitResult.accepted ? (
                       <div>
@@ -465,7 +498,7 @@ const ProblemPage = () => {
                   </div>
                 </div>
               ) : (
-                <div className="text-gray-500">
+                <div className={`text-gray-500 ${isDarkMode ? 'text-gray-400' : ''}`}>
                   Click "Submit" to submit your solution for evaluation.
                 </div>
               )}

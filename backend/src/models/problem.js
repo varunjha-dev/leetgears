@@ -76,10 +76,6 @@ const problemSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref:'user',
         required:true
-    },
-    solutionVideo: {
-        videoUrl: String,
-        cloudinaryPublicId: String,
     }
 })
 const Problem = mongoose.model('problem',problemSchema);
