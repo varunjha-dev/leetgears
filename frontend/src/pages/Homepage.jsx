@@ -27,24 +27,30 @@ function Homepage() {
 
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
-  const [problems, setProblems] = useState([]);
+  const [allProblems, setAllProblems] = useState([]); // Store all problems
   const [solvedProblems, setSolvedProblems] = useState([]);
   const [filters, setFilters] = useState({
     difficulty: 'all',
     tag: 'all',
     status: 'all' 
   });
+  const [currentPage, setCurrentPage] = useState(1);
+  const problemsPerPage = 5;
 
   useEffect(() => {
-    const fetchProblems = async () => {
+    const fetchAllProblems = async () => {
       try {
         const { data } = await axiosClient.get('/problem/getAllProblem');
-        setProblems(data);
+        setAllProblems(data);
       } catch (error) {
         console.error('Error fetching problems:', error);
       }
     };
 
+    fetchAllProblems();
+  }, []); // Fetch all problems only once on component mount
+
+  useEffect(() => {
     const fetchSolvedProblems = async () => {
       try {
         const { data } = await axiosClient.get('/problem/problemSolvedByUser');
@@ -53,8 +59,6 @@ function Homepage() {
         console.error('Error fetching solved problems:', error);
       }
     };
-
-    fetchProblems();
     if (user) fetchSolvedProblems();
   }, [user]);
 
@@ -63,13 +67,42 @@ function Homepage() {
     setSolvedProblems([]); // Clear solved problems on logout
   };
 
-  const filteredProblems = problems.filter(problem => {
+  const filteredProblems = allProblems.filter(problem => {
     const difficultyMatch = filters.difficulty === 'all' || problem.difficulty === filters.difficulty;
     const tagMatch = filters.tag === 'all' || problem.tags === filters.tag;
     const statusMatch = filters.status === 'all' || 
                       solvedProblems.some(sp => sp._id === problem._id);
     return difficultyMatch && tagMatch && statusMatch;
   });
+
+  // Calculate total pages based on filtered problems
+  const totalPages = Math.ceil(filteredProblems.length / problemsPerPage);
+
+  // Get current problems for display based on pagination
+  const indexOfLastProblem = currentPage * problemsPerPage;
+  const indexOfFirstProblem = indexOfLastProblem - problemsPerPage;
+  const currentProblems = filteredProblems.slice(indexOfFirstProblem, indexOfLastProblem);
+
+  const handlePageChange = (pageNumber) => {
+    if (pageNumber < 1 || pageNumber > totalPages) return;
+    setCurrentPage(pageNumber);
+  };
+
+  const renderPaginationButtons = () => {
+    const pageButtons = [];
+    for (let i = 1; i <= totalPages; i++) {
+      pageButtons.push(
+        <button
+          key={i}
+          onClick={() => handlePageChange(i)}
+          className={`join-item btn ${currentPage === i ? 'btn-active btn-primary' : ''}`}
+        >
+          {i}
+        </button>
+      );
+    }
+    return pageButtons;
+  };
 
   return (
     <div className={`min-h-screen ${isDarkMode ? 'bg-[#282828] text-white' : 'bg-base-200'}`}>
@@ -83,7 +116,7 @@ function Homepage() {
         </div>
         <div className="flex-none gap-4">
           <button onClick={toggleDarkMode} className="btn btn-ghost btn-circle">
-            {isDarkMode ? <Sun size={24} /> : <Moon size={24} />}
+            {isDarkMode ? <Sun size={24} /> : <Moon size={24} />} 
           </button>
           <div className="dropdown dropdown-end">
             <div tabIndex={0} className="btn btn-ghost">
@@ -101,11 +134,11 @@ function Homepage() {
       <div className="container mx-auto p-4">
         {/* Filters */}
         <div className="flex flex-wrap gap-4 mb-6">
-          {/* New Status Filter */}
+          {/* Status Filter */}
           <select 
             className={`select select-bordered ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : ''}`}
             value={filters.status}
-            onChange={(e) => setFilters({...filters, status: e.target.value})}
+            onChange={(e) => setFilters({...filters, status: e.target.value, currentPage: 1})}
           >
             <option value="all">All Problems</option>
             <option value="solved">Solved Problems</option>
@@ -114,7 +147,7 @@ function Homepage() {
           <select 
             className={`select select-bordered ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : ''}`}
             value={filters.difficulty}
-            onChange={(e) => setFilters({...filters, difficulty: e.target.value})}
+            onChange={(e) => setFilters({...filters, difficulty: e.target.value, currentPage: 1})}
           >
             <option value="all">All Difficulties</option>
             <option value="easy">Easy</option>
@@ -125,7 +158,7 @@ function Homepage() {
           <select 
             className={`select select-bordered ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : ''}`}
             value={filters.tag}
-            onChange={(e) => setFilters({...filters, tag: e.target.value})}
+            onChange={(e) => setFilters({...filters, tag: e.target.value, currentPage: 1})}
           >
             <option value="all">All Tags</option>
             <option value="Array">Array</option>
@@ -137,7 +170,7 @@ function Homepage() {
 
         {/* Problems List */}
         <div className="grid gap-4">
-          {filteredProblems.map(problem => (
+          {currentProblems.map(problem => (
             <div key={problem._id} className={`card shadow-xl ${isDarkMode ? 'bg-gray-800 text-white' : 'bg-base-100'}`}>
               <div className="card-body">
                 <div className="flex items-center justify-between">
@@ -166,6 +199,29 @@ function Homepage() {
             </div>
           ))}
         </div>
+
+        {/* Pagination Controls */}
+        {totalPages > 1 && (
+          <div className="flex justify-center mt-8">
+            <div className="join">
+              <button 
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="join-item btn"
+              >
+                «
+              </button>
+              {renderPaginationButtons()}
+              <button 
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className="join-item btn"
+              >
+                »
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import axiosClient from '../utils/axiosClient'
+import AdminNavbar from './AdminNavbar';
 
 const AdminDelete = () => {
   const [problems, setProblems] = useState([]);
@@ -59,59 +60,62 @@ const AdminDelete = () => {
   }
 
   return (
-    <div className="container mx-auto p-4">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Delete Problems</h1>
-      </div>
+    <>
+      <AdminNavbar />
+      <div className="container mx-auto p-4">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-3xl font-bold">Delete Problems</h1>
+        </div>
 
-      <div className="overflow-x-auto">
-        <table className="table table-zebra w-full">
-          <thead>
-            <tr>
-              <th className="w-1/12">#</th>
-              <th className="w-4/12">Title</th>
-              <th className="w-2/12">Difficulty</th>
-              <th className="w-3/12">Tags</th>
-              <th className="w-2/12">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {problems.map((problem, index) => (
-              <tr key={problem._id}>
-                <th>{index + 1}</th>
-                <td>{problem.title}</td>
-                <td>
-                  <span className={`badge ${
-                    problem.difficulty === 'Easy' 
-                      ? 'badge-success' 
-                      : problem.difficulty === 'Medium' 
-                        ? 'badge-warning' 
-                        : 'badge-error'
-                  }`}>
-                    {problem.difficulty}
-                  </span>
-                </td>
-                <td>
-                  <span className="badge badge-outline">
-                    {problem.tags}
-                  </span>
-                </td>
-                <td>
-                  <div className="flex space-x-2">
-                    <button 
-                      onClick={() => handleDelete(problem._id)}
-                      className="btn btn-sm btn-error"
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </td>
+        <div className="overflow-x-auto">
+          <table className="table table-zebra w-full">
+            <thead>
+              <tr>
+                <th className="w-1/12">#</th>
+                <th className="w-4/12">Title</th>
+                <th className="w-2/12">Difficulty</th>
+                <th className="w-3/12">Tags</th>
+                <th className="w-2/12">Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {problems.map((problem, index) => (
+                <tr key={problem._id}>
+                  <th>{index + 1}</th>
+                  <td>{problem.title}</td>
+                  <td>
+                    <span className={`badge ${
+                      problem.difficulty === 'Easy' 
+                        ? 'badge-success' 
+                        : problem.difficulty === 'Medium' 
+                          ? 'badge-warning' 
+                          : 'badge-error'
+                    }`}>
+                      {problem.difficulty}
+                    </span>
+                  </td>
+                  <td>
+                    <span className="badge badge-outline">
+                      {problem.tags}
+                    </span>
+                  </td>
+                  <td>
+                    <div className="flex space-x-2">
+                      <button 
+                        onClick={() => handleDelete(problem._id)}
+                        className="btn btn-sm btn-error"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 

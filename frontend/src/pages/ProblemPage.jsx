@@ -1,12 +1,13 @@
 import { useState, useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import Editor from '@monaco-editor/react';
-import { useParams } from 'react-router';
+import { useParams, useNavigate } from 'react-router';
 import axiosClient from "../utils/axiosClient"
 import SubmissionHistory from "../components/SubmissionHistory"
 import ChatAi from '../components/ChatAi';
 import Editorial from '../components/Editorial';
 import { BrainCircuit, Sun, Moon } from 'lucide-react';
+import { useSelector } from 'react-redux';
 
 const ProblemPage = () => {
   const [isDarkMode, setIsDarkMode] = useState(() => {
@@ -29,7 +30,7 @@ const ProblemPage = () => {
   };
 
   const [problem, setProblem] = useState(null);
-  const [selectedLanguage, setSelectedLanguage] = useState('javascript');
+  const [selectedLanguage, setSelectedLanguage] = useState('java'); // Default to Java
   const [code, setCode] = useState('');
   const [loading, setLoading] = useState(false);
   const [runResult, setRunResult] = useState(null);
@@ -38,6 +39,8 @@ const ProblemPage = () => {
   const [activeRightTab, setActiveRightTab] = useState('code');
   const editorRef = useRef(null);
   let {id}  = useParams();
+  const navigate = useNavigate();
+  const { isAuthenticated } = useSelector((state) => state.auth);
 
   const { handleSubmit } = useForm();
 
@@ -59,7 +62,7 @@ const ProblemPage = () => {
         return true;
 
         return false;
-        })?.initialCode || 'Hello';
+        })?.initialCode || ''; // Changed default to empty string
 
         // console.log(initialCode);
         setProblem(response.data);
@@ -164,6 +167,14 @@ const ProblemPage = () => {
     }
   };
 
+  const handleLogoClick = () => {
+    if (isAuthenticated) {
+      navigate('/');
+    } else {
+      navigate('/login');
+    }
+  };
+
   if (loading && !problem) {
     return (
       <div className="flex justify-center items-center min-h-screen">
@@ -179,10 +190,10 @@ const ProblemPage = () => {
         {/* Header for Left Panel */}
         <div className={`navbar ${isDarkMode ? 'bg-[#282828]' : 'bg-base-100'} shadow-lg px-4`}>
           <div className="flex-1">
-            <a className="btn btn-ghost text-xl normal-case">
+            <button onClick={handleLogoClick} className="btn btn-ghost text-xl normal-case">
               <BrainCircuit size={24} className="text-green-500 mr-2" /> 
               <span className={`${isDarkMode ? 'text-white' : 'text-gray-800'}`}>LeetGears</span>
-            </a>
+            </button>
           </div>
           <div className="flex-none">
             <button onClick={toggleDarkMode} className="btn btn-ghost btn-circle">
@@ -343,15 +354,15 @@ const ProblemPage = () => {
               {/* Language Selector */}
               <div className={`flex justify-between items-center p-4 ${isDarkMode ? 'border-b border-gray-700 bg-gray-800' : 'border-b border-base-300'}`}>
                 <div className="flex gap-2">
-                  {['javascript', 'java', 'cpp'].map((lang) => (
-                    <button
-                      key={lang}
-                      className={`btn btn-sm ${selectedLanguage === lang ? 'btn-primary bg-[#00A68A] hover:bg-[#008F77] border-none text-white' : (isDarkMode ? 'btn-ghost text-gray-300 hover:bg-gray-700' : 'btn-ghost')}`}
-                      onClick={() => handleLanguageChange(lang)}
-                    >
-                      {lang === 'cpp' ? 'C++' : lang === 'javascript' ? 'JavaScript' : 'Java'}
-                    </button>
-                  ))}
+                  <select
+                    value={selectedLanguage}
+                    onChange={(e) => handleLanguageChange(e.target.value)}
+                    className={`select select-bordered ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : ''}`}
+                  >
+                    <option value="java">Java</option>
+                    <option value="javascript">JavaScript</option>
+                    <option value="cpp">C++</option>
+                  </select>
                 </div>
               </div>
 

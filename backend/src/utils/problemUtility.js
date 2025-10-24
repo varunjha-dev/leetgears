@@ -2,7 +2,7 @@ const axios = require("axios");
 
 const getLanguageById = (lang) => {
     const language = {
-        "cpp": 105,         // C++ (GCC 14.1.0)
+        "c++": 105,         // C++ (GCC 14.1.0)
         "java": 62,        // Java (OpenJDK 13.0.1)
         "javascript": 63  // JavaScript (Node.js 12.14.0)
     }

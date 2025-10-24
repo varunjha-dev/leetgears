@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import axiosClient from '../utils/axiosClient'
 import { NavLink } from 'react-router';
+import AdminNavbar from './AdminNavbar';
 
 const AdminVideo = () => {
   const [problems, setProblems] = useState([]);
@@ -26,7 +27,7 @@ const AdminVideo = () => {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this problem?')) return;
+    if (!window.confirm('Are you sure you want to delete this problem video?')) return;
     
     try {
       await axiosClient.delete(`/video/delete/${id}`);
@@ -59,6 +60,8 @@ const AdminVideo = () => {
   }
 
   return (
+    <>
+    <AdminNavbar />
     <div className="container mx-auto p-4">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold">Video Upload and Delete</h1>
@@ -122,6 +125,7 @@ const AdminVideo = () => {
         </table>
       </div>
     </div>
+    </>
   );
 };
 

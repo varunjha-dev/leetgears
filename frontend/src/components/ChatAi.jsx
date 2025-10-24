@@ -1,13 +1,14 @@
 import { useState, useRef, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import axiosClient from "../utils/axiosClient";
-import { Send } from 'lucide-react';
+import { Send, Bot, User } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
 
 function ChatAi({problem}) {
     const [messages, setMessages] = useState([
-        { role: 'model', parts:[{text: "Hi, How are you"}]},
-        { role: 'user', parts:[{text: "I am Good"}]}
+        { role: 'model', parts:[{text: `Hello! I am your AI coding assistant. I can help you with the problem '${problem.title}'. What would you like to know or discuss about it?`}]},
     ]);
+    const [isLoading, setIsLoading] = useState(false);
 
     const { register, handleSubmit, reset,formState: {errors} } = useForm();
     const messagesEndRef = useRef(null);
@@ -23,7 +24,7 @@ function ChatAi({problem}) {
         reset();
 
         try {
-            
+            setIsLoading(true);
             const response = await axiosClient.post("/ai/chat", {
                 messages:[...messages, newUserMessage],
                 title:problem.title,
@@ -31,7 +32,7 @@ function ChatAi({problem}) {
                 testCases: problem.visibleTestCases,
                 startCode:problem.startCode
             });
-
+            setIsLoading(false);
            
             setMessages(prev => [...prev, { 
                 role: 'model', 
@@ -39,6 +40,7 @@ function ChatAi({problem}) {
             }]);
         } catch (error) {
             console.error("API Error:", error);
+            setIsLoading(false);
             setMessages(prev => [...prev, { 
                 role: 'model', 
                 parts:[{text: "Error from AI Chatbot"}]
@@ -54,29 +56,52 @@ function ChatAi({problem}) {
                         key={index} 
                         className={`chat ${msg.role === "user" ? "chat-end" : "chat-start"}`}
                     >
+                        <div className="chat-image avatar">
+                            <div className="w-10 rounded-full">
+                                {msg.role === "user" ? <User size={40} /> : <Bot size={40} />}
+                            </div>
+                        </div>
+                        <div className="chat-header">
+                            {msg.role === "user" ? "You" : "AI Assistant"}
+                        </div>
                         <div className="chat-bubble bg-base-200 text-base-content">
-                            {msg.parts[0].text}
+                            <ReactMarkdown>{msg.parts[0].text}</ReactMarkdown>
                         </div>
                     </div>
                 ))}
+                {isLoading && (
+                    <div className="chat chat-start">
+                        <div className="chat-image avatar">
+                            <div className="w-10 rounded-full">
+                                <Bot size={40} />
+                            </div>
+                        </div>
+                        <div className="chat-header">
+                            AI Assistant
+                        </div>
+                        <div className="chat-bubble">
+                            <span className="loading loading-dots loading-md"></span>
+                        </div>
+                    </div>
+                )}
                 <div ref={messagesEndRef} />
             </div>
             <form 
                 onSubmit={handleSubmit(onSubmit)} 
                 className="sticky bottom-0 p-4 bg-base-100 border-t"
             >
-                <div className="flex items-center">
+                <div className="flex items-center gap-2">
                     <input 
                         placeholder="Ask me anything" 
-                        className="input input-bordered flex-1" 
+                        className="input input-bordered input-primary flex-1" 
                         {...register("message", { required: true, minLength: 2 })}
                     />
                     <button 
                         type="submit" 
-                        className="btn btn-ghost ml-2"
-                        disabled={errors.message}
+                        className="btn btn-primary btn-square"
+                        disabled={errors.message || isLoading}
                     >
-                        <Send size={20} />
+                        {isLoading ? <span className="loading loading-spinner"></span> : <Send size={20} />}
                     </button>
                 </div>
             </form>
@@ -85,3 +110,5 @@ function ChatAi({problem}) {
 }
 
 export default ChatAi;
+
+

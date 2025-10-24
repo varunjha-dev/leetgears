@@ -4,8 +4,9 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useNavigate, useParams } from 'react-router';
 import axiosClient from '../utils/axiosClient';
-import { BrainCircuit, Sun, Moon, Plus, Minus } from 'lucide-react';
-import { toast } from 'react-hot-toast'; // Assuming react-hot-toast is used for notifications
+import AdminNavbar from './AdminNavbar';
+import { Plus, Minus } from 'lucide-react';
+import JsonProblemForm from './JsonProblemForm';
 
 const problemSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -39,6 +40,8 @@ function AdminUpdate() {
     const savedMode = localStorage.getItem('theme');
     return savedMode === 'dark';
   });
+  const [problemData, setProblemData] = useState(null);
+  const [showJsonForm, setShowJsonForm] = useState(false);
 
   useEffect(() => {
     if (isDarkMode) {
@@ -93,16 +96,17 @@ function AdminUpdate() {
       if (!problemId) return;
       try {
         const response = await axiosClient.get(`/problem/problemById/${problemId}`);
-        const problemData = response.data;
-        Object.keys(problemData).forEach(key => {
+        const fetchedData = response.data;
+        setProblemData(fetchedData);
+        Object.keys(fetchedData).forEach(key => {
           if (key in problemSchema.shape) {
-            setValue(key, problemData[key]);
+            setValue(key, fetchedData[key]);
           }
         });
         setLoading(false);
       } catch (error) {
         console.error("Error fetching problem data:", error);
-        toast.error("Failed to fetch problem data.");
+        window.alert("Failed to fetch problem data.");
         setLoading(false);
       }
     };
@@ -113,13 +117,17 @@ function AdminUpdate() {
     setLoading(true);
     try {
       await axiosClient.put(`/problem/update/${problemId}`, data);
-      toast.success("Problem updated successfully!");
+      window.alert("Problem updated successfully!");
       navigate('/admin');
     } catch (error) {
       console.error("Error updating problem:", error);
-      toast.error("Failed to update problem.");
+      window.alert("Failed to update problem.");
     }
     setLoading(false);
+  };
+
+  const onFormSubmitSuccess = () => {
+    navigate('/admin');
   };
 
   if (loading) {
@@ -132,169 +140,173 @@ function AdminUpdate() {
 
   return (
     <div className={`min-h-screen ${isDarkMode ? 'bg-[#282828] text-white' : 'bg-base-200'}`}>
-      <nav className={`navbar ${isDarkMode ? 'bg-[#282828] shadow-lg' : 'bg-base-100 shadow-lg'} px-4`}>
-        <div className="flex-1">
-          <a className="btn btn-ghost text-xl normal-case">
-            <BrainCircuit size={24} className="text-green-500 mr-2" />
-            <span className={`${isDarkMode ? 'text-white' : 'text-gray-800'}`}>LeetGears</span>
-          </a>
-        </div>
-        <div className="flex-none">
-          <button onClick={toggleDarkMode} className="btn btn-ghost btn-circle">
-            {isDarkMode ? <Sun size={24} className="text-white" /> : <Moon size={24} className="text-gray-800" />}
-          </button>
-        </div>
-      </nav>
+      <AdminNavbar />
 
       <div className="container mx-auto p-4">
         <h1 className={`text-3xl font-bold text-center mb-8 ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>Update Problem</h1>
         
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          {/* Basic Details */}
-          <div className={`card shadow-xl ${isDarkMode ? 'bg-gray-800' : 'bg-base-100'}`}>
-            <div className="card-body">
-              <h2 className="card-title">Basic Details</h2>
-              <div className="form-control">
-                <label className="label"><span className={`label-text ${isDarkMode ? 'text-white' : 'text-gray-700'}`}>Title</span></label>
-                <input type="text" placeholder="Problem Title" {...register('title')} className={`input input-bordered ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : ''}`} />
-                {errors.title && <span className="text-error text-sm mt-1">{errors.title.message}</span>}
-              </div>
-              <div className="form-control">
-                <label className="label"><span className={`label-text ${isDarkMode ? 'text-white' : 'text-gray-700'}`}>Description</span></label>
-                <textarea placeholder="Problem Description" {...register('description')} className={`textarea textarea-bordered h-24 ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : ''}`}></textarea>
-                {errors.description && <span className="text-error text-sm mt-1">{errors.description.message}</span>}
-              </div>
-              <div className="form-control">
-                <label className="label"><span className={`label-text ${isDarkMode ? 'text-white' : 'text-gray-700'}`}>Difficulty</span></label>
-                <select {...register('difficulty')} className={`select select-bordered ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : ''}`}>
-                  <option value="easy">Easy</option>
-                  <option value="medium">Medium</option>
-                  <option value="hard">Hard</option>
-                </select>
-                {errors.difficulty && <span className="text-error text-sm mt-1">{errors.difficulty.message}</span>}
-              </div>
-              <div className="form-control">
-                <label className="label"><span className={`label-text ${isDarkMode ? 'text-white' : 'text-gray-700'}`}>Tags</span></label>
-                <select {...register('tags')} className={`select select-bordered ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : ''}`}>
-                  <option value="Array">Array</option>
-                  <option value="LinkedList">Linked List</option>
-                  <option value="Graph">Graph</option>
-                  <option value="DP">DP</option>
-                </select>
-                {errors.tags && <span className="text-error text-sm mt-1">{errors.tags.message}</span>}
-              </div>
-            </div>
-          </div>
-
-          {/* Visible Test Cases */}
-          <div className={`card shadow-xl ${isDarkMode ? 'bg-gray-800' : 'bg-base-100'}`}>
-            <div className="card-body">
-              <h2 className="card-title">Visible Test Cases</h2>
-              {visibleFields.map((field, index) => (
-                <div key={field.id} className="space-y-4 border p-4 rounded-lg">
-                  <div className="form-control">
-                    <label className="label"><span className={`label-text ${isDarkMode ? 'text-white' : 'text-gray-700'}`}>Input {index + 1}</span></label>
-                    <textarea placeholder="Input" {...register(`visibleTestCases.${index}.input`)} className={`textarea textarea-bordered ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : ''}`}></textarea>
-                    {errors.visibleTestCases?.[index]?.input && <span className="text-error text-sm mt-1">{errors.visibleTestCases[index].input.message}</span>}
-                  </div>
-                  <div className="form-control">
-                    <label className="label"><span className={`label-text ${isDarkMode ? 'text-white' : 'text-gray-700'}`}>Output {index + 1}</span></label>
-                    <textarea placeholder="Output" {...register(`visibleTestCases.${index}.output`)} className={`textarea textarea-bordered ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : ''}`}></textarea>
-                    {errors.visibleTestCases?.[index]?.output && <span className="text-error text-sm mt-1">{errors.visibleTestCases[index].output.message}</span>}
-                  </div>
-                  <div className="form-control">
-                    <label className="label"><span className={`label-text ${isDarkMode ? 'text-white' : 'text-gray-700'}`}>Explanation {index + 1}</span></label>
-                    <textarea placeholder="Explanation" {...register(`visibleTestCases.${index}.explanation`)} className={`textarea textarea-bordered ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : ''}`}></textarea>
-                    {errors.visibleTestCases?.[index]?.explanation && <span className="text-error text-sm mt-1">{errors.visibleTestCases[index].explanation.message}</span>}
-                  </div>
-                  <button type="button" onClick={() => removeVisible(index)} className="btn btn-error btn-sm"><Minus size={16} /> Remove</button>
-                </div>
-              ))}
-              <button type="button" onClick={() => appendVisible({ input: '', output: '', explanation: '' })} className="btn btn-info btn-sm mt-4"><Plus size={16} /> Add Visible Test Case</button>
-            </div>
-          </div>
-
-          {/* Hidden Test Cases */}
-          <div className={`card shadow-xl ${isDarkMode ? 'bg-gray-800' : 'bg-base-100'}`}>
-            <div className="card-body">
-              <h2 className="card-title">Hidden Test Cases</h2>
-              {hiddenFields.map((field, index) => (
-                <div key={field.id} className="space-y-4 border p-4 rounded-lg">
-                  <div className="form-control">
-                    <label className="label"><span className={`label-text ${isDarkMode ? 'text-white' : 'text-gray-700'}`}>Input {index + 1}</span></label>
-                    <textarea placeholder="Input" {...register(`hiddenTestCases.${index}.input`)} className={`textarea textarea-bordered ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : ''}`}></textarea>
-                    {errors.hiddenTestCases?.[index]?.input && <span className="text-error text-sm mt-1">{errors.hiddenTestCases[index].input.message}</span>}
-                  </div>
-                  <div className="form-control">
-                    <label className="label"><span className={`label-text ${isDarkMode ? 'text-white' : 'text-gray-700'}`}>Output {index + 1}</span></label>
-                    <textarea placeholder="Output" {...register(`hiddenTestCases.${index}.output`)} className={`textarea textarea-bordered ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : ''}`}></textarea>
-                    {errors.hiddenTestCases?.[index]?.output && <span className="text-error text-sm mt-1">{errors.hiddenTestCases[index].output.message}</span>}
-                  </div>
-                  <button type="button" onClick={() => removeHidden(index)} className="btn btn-error btn-sm"><Minus size={16} /> Remove</button>
-                </div>
-              ))}
-              <button type="button" onClick={() => appendHidden({ input: '', output: '' })} className="btn btn-info btn-sm mt-4"><Plus size={16} /> Add Hidden Test Case</button>
-            </div>
-          </div>
-
-          {/* Start Code Templates */}
-          <div className={`card shadow-xl ${isDarkMode ? 'bg-gray-800' : 'bg-base-100'}`}>
-            <div className="card-body">
-              <h2 className="card-title">Start Code Templates</h2>
-              {startCodeFields.map((field, index) => (
-                <div key={field.id} className="space-y-4 border p-4 rounded-lg">
-                  <div className="form-control">
-                    <label className="label"><span className={`label-text ${isDarkMode ? 'text-white' : 'text-gray-700'}`}>Language {index + 1}</span></label>
-                    <select {...register(`startCode.${index}.language`)} className={`select select-bordered ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : ''}`}>
-                      <option value="javascript">JavaScript</option>
-                      <option value="java">Java</option>
-                      <option value="cpp">C++</option>
-                    </select>
-                    {errors.startCode?.[index]?.language && <span className="text-error text-sm mt-1">{errors.startCode[index].language.message}</span>}
-                  </div>
-                  <div className="form-control">
-                    <label className="label"><span className={`label-text ${isDarkMode ? 'text-white' : 'text-gray-700'}`}>Initial Code {index + 1}</span></label>
-                    <textarea placeholder="Initial Code" {...register(`startCode.${index}.initialCode`)} className={`textarea textarea-bordered h-32 ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : ''}`}></textarea>
-                    {errors.startCode?.[index]?.initialCode && <span className="text-error text-sm mt-1">{errors.startCode[index].initialCode.message}</span>}
-                  </div>
-                  <button type="button" onClick={() => removeStartCode(index)} className="btn btn-error btn-sm"><Minus size={16} /> Remove</button>
-                </div>
-              ))}
-              <button type="button" onClick={() => appendStartCode({ language: 'javascript', initialCode: '' })} className="btn btn-info btn-sm mt-4"><Plus size={16} /> Add Start Code</button>
-            </div>
-          </div>
-
-          {/* Reference Solutions */}
-          <div className={`card shadow-xl ${isDarkMode ? 'bg-gray-800' : 'bg-base-100'}`}>
-            <div className="card-body">
-              <h2 className="card-title">Reference Solutions</h2>
-              {referenceSolutionFields.map((field, index) => (
-                <div key={field.id} className="space-y-4 border p-4 rounded-lg">
-                  <div className="form-control">
-                    <label className="label"><span className={`label-text ${isDarkMode ? 'text-white' : 'text-gray-700'}`}>Language {index + 1}</span></label>
-                    <select {...register(`referenceSolution.${index}.language`)} className={`select select-bordered ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : ''}`}>
-                      <option value="javascript">JavaScript</option>
-                      <option value="java">Java</option>
-                      <option value="cpp">C++</option>
-                    </select>
-                    {errors.referenceSolution?.[index]?.language && <span className="text-error text-sm mt-1">{errors.referenceSolution[index].language.message}</span>}
-                  </div>
-                  <div className="form-control">
-                    <label className="label"><span className={`label-text ${isDarkMode ? 'text-white' : 'text-gray-700'}`}>Complete Code {index + 1}</span></label>
-                    <textarea placeholder="Complete Code" {...register(`referenceSolution.${index}.completeCode`)} className={`textarea textarea-bordered h-32 ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : ''}`}></textarea>
-                    {errors.referenceSolution?.[index]?.completeCode && <span className="text-error text-sm mt-1">{errors.referenceSolution[index].completeCode.message}</span>}
-                  </div>
-                  <button type="button" onClick={() => removeReferenceSolution(index)} className="btn btn-error btn-sm"><Minus size={16} /> Remove</button>
-                </div>
-              ))}
-              <button type="button" onClick={() => appendReferenceSolution({ language: 'javascript', completeCode: '' })} className="btn btn-info btn-sm mt-4"><Plus size={16} /> Add Reference Solution</button>
-            </div>
-          </div>
-
-          <button type="submit" className={`btn btn-primary btn-wide mt-8 ${loading ? 'loading btn-disabled' : ''} ${isDarkMode ? 'bg-[#00A68A] hover:bg-[#008F77] border-none text-white' : ''}`} disabled={loading}>
-            {loading ? 'Updating...' : 'Update Problem'}
+        <div className="flex justify-end mb-4">
+          <button onClick={() => setShowJsonForm(!showJsonForm)} className="btn btn-secondary">
+            {showJsonForm ? 'Use Form Builder' : 'Use JSON Editor'}
           </button>
-        </form>
+        </div>
+
+        {showJsonForm && problemData ? (
+          <JsonProblemForm 
+            problemData={problemData}
+            onSubmitSuccess={onFormSubmitSuccess}
+            isUpdateMode={true}
+            problemId={problemId}
+          />
+        ) : (
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+            {/* Basic Details */}
+            <div className={`card shadow-xl ${isDarkMode ? 'bg-gray-800' : 'bg-base-100'}`}>
+              <div className="card-body">
+                <h2 className="card-title">Basic Details</h2>
+                <div className="form-control">
+                  <label className="label"><span className={`label-text ${isDarkMode ? 'text-white' : 'text-gray-700'}`}>Title</span></label>
+                  <input type="text" placeholder="Problem Title" {...register('title')} className={`input input-bordered ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : ''}`} />
+                  {errors.title && <span className="text-error text-sm mt-1">{errors.title.message}</span>}
+                </div>
+                <div className="form-control">
+                  <label className="label"><span className={`label-text ${isDarkMode ? 'text-white' : 'text-gray-700'}`}>Description</span></label>
+                  <textarea placeholder="Problem Description" {...register('description')} className={`textarea textarea-bordered h-24 ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : ''}`}></textarea>
+                  {errors.description && <span className="text-error text-sm mt-1">{errors.description.message}</span>}
+                </div>
+                <div className="form-control">
+                  <label className="label"><span className={`label-text ${isDarkMode ? 'text-white' : 'text-gray-700'}`}>Difficulty</span></label>
+                  <select {...register('difficulty')} className={`select select-bordered ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : ''}`}>
+                    <option value="easy">Easy</option>
+                    <option value="medium">Medium</option>
+                    <option value="hard">Hard</option>
+                  </select>
+                  {errors.difficulty && <span className="text-error text-sm mt-1">{errors.difficulty.message}</span>}
+                </div>
+                <div className="form-control">
+                  <label className="label"><span className={`label-text ${isDarkMode ? 'text-white' : 'text-gray-700'}`}>Tags</span></label>
+                  <select {...register('tags')} className={`select select-bordered ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : ''}`}>
+                    <option value="Array">Array</option>
+                    <option value="LinkedList">Linked List</option>
+                    <option value="Graph">Graph</option>
+                    <option value="DP">DP</option>
+                  </select>
+                  {errors.tags && <span className="text-error text-sm mt-1">{errors.tags.message}</span>}
+                </div>
+              </div>
+            </div>
+
+            {/* Visible Test Cases */}
+            <div className={`card shadow-xl ${isDarkMode ? 'bg-gray-800' : 'bg-base-100'}`}>
+              <div className="card-body">
+                <h2 className="card-title">Visible Test Cases</h2>
+                {visibleFields.map((field, index) => (
+                  <div key={field.id} className="space-y-4 border p-4 rounded-lg">
+                    <div className="form-control">
+                      <label className="label"><span className={`label-text ${isDarkMode ? 'text-white' : 'text-gray-700'}`}>Input {index + 1}</span></label>
+                      <textarea placeholder="Input" {...register(`visibleTestCases.${index}.input`)} className={`textarea textarea-bordered ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : ''}`}></textarea>
+                      {errors.visibleTestCases?.[index]?.input && <span className="text-error text-sm mt-1">{errors.visibleTestCases[index].input.message}</span>}
+                    </div>
+                    <div className="form-control">
+                      <label className="label"><span className={`label-text ${isDarkMode ? 'text-white' : 'text-gray-700'}`}>Output {index + 1}</span></label>
+                      <textarea placeholder="Output" {...register(`visibleTestCases.${index}.output`)} className={`textarea textarea-bordered ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : ''}`}></textarea>
+                      {errors.visibleTestCases?.[index]?.output && <span className="text-error text-sm mt-1">{errors.visibleTestCases[index].output.message}</span>}
+                    </div>
+                    <div className="form-control">
+                      <label className="label"><span className={`label-text ${isDarkMode ? 'text-white' : 'text-gray-700'}`}>Explanation {index + 1}</span></label>
+                      <textarea placeholder="Explanation" {...register(`visibleTestCases.${index}.explanation`)} className={`textarea textarea-bordered ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : ''}`}></textarea>
+                      {errors.visibleTestCases?.[index]?.explanation && <span className="text-error text-sm mt-1">{errors.visibleTestCases[index].explanation.message}</span>}
+                    </div>
+                    <button type="button" onClick={() => removeVisible(index)} className="btn btn-error btn-sm"><Minus size={16} /> Remove</button>
+                  </div>
+                ))}
+                <button type="button" onClick={() => appendVisible({ input: '', output: '', explanation: '' })} className="btn btn-info btn-sm mt-4"><Plus size={16} /> Add Visible Test Case</button>
+              </div>
+            </div>
+
+              {/* Hidden Test Cases */}
+              <div className={`card shadow-xl ${isDarkMode ? 'bg-gray-800' : 'bg-base-100'}`}>
+                <div className="card-body">
+                  <h2 className="card-title">Hidden Test Cases</h2>
+                  {hiddenFields.map((field, index) => (
+                    <div key={field.id} className="space-y-4 border p-4 rounded-lg">
+                      <div className="form-control">
+                        <label className="label"><span className={`label-text ${isDarkMode ? 'text-white' : 'text-gray-700'}`}>Input {index + 1}</span></label>
+                        <textarea placeholder="Input" {...register(`hiddenTestCases.${index}.input`)} className={`textarea textarea-bordered ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : ''}`}></textarea>
+                        {errors.hiddenTestCases?.[index]?.input && <span className="text-error text-sm mt-1">{errors.hiddenTestCases[index].input.message}</span>}
+                      </div>
+                      <div className="form-control">
+                        <label className="label"><span className={`label-text ${isDarkMode ? 'text-white' : 'text-gray-700'}`}>Output {index + 1}</span></label>
+                        <textarea placeholder="Output" {...register(`hiddenTestCases.${index}.output`)} className={`textarea textarea-bordered ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : ''}`}></textarea>
+                        {errors.hiddenTestCases?.[index]?.output && <span className="text-error text-sm mt-1">{errors.hiddenTestCases[index].output.message}</span>}
+                      </div>
+                      <button type="button" onClick={() => removeHidden(index)} className="btn btn-error btn-sm"><Minus size={16} /> Remove</button>
+                    </div>
+                  ))}
+                  <button type="button" onClick={() => appendHidden({ input: '', output: '' })} className="btn btn-info btn-sm mt-4"><Plus size={16} /> Add Hidden Test Case</button>
+                </div>
+              </div>
+
+              {/* Start Code Templates */}
+              <div className={`card shadow-xl ${isDarkMode ? 'bg-gray-800' : 'bg-base-100'}`}>
+                <div className="card-body">
+                  <h2 className="card-title">Start Code Templates</h2>
+                  {startCodeFields.map((field, index) => (
+                    <div key={field.id} className="space-y-4 border p-4 rounded-lg">
+                      <div className="form-control">
+                        <label className="label"><span className={`label-text ${isDarkMode ? 'text-white' : 'text-gray-700'}`}>Language {index + 1}</span></label>
+                        <select {...register(`startCode.${index}.language`)} className={`select select-bordered ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : ''}`}>
+                          <option value="javascript">JavaScript</option>
+                          <option value="java">Java</option>
+                          <option value="cpp">C++</option>
+                        </select>
+                        {errors.startCode?.[index]?.language && <span className="text-error text-sm mt-1">{errors.startCode[index].language.message}</span>}
+                      </div>
+                      <div className="form-control">
+                        <label className="label"><span className={`label-text ${isDarkMode ? 'text-white' : 'text-gray-700'}`}>Initial Code {index + 1}</span></label>
+                        <textarea placeholder="Initial Code" {...register(`startCode.${index}.initialCode`)} className={`textarea textarea-bordered h-32 ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : ''}`}></textarea>
+                        {errors.startCode?.[index]?.initialCode && <span className="text-error text-sm mt-1">{errors.startCode[index].initialCode.message}</span>}
+                      </div>
+                      <button type="button" onClick={() => removeStartCode(index)} className="btn btn-error btn-sm"><Minus size={16} /> Remove</button>
+                    </div>
+                  ))}
+                  <button type="button" onClick={() => appendStartCode({ language: 'javascript', initialCode: '' })} className="btn btn-info btn-sm mt-4"><Plus size={16} /> Add Start Code</button>
+                </div>
+              </div>
+
+              {/* Reference Solutions */}
+              <div className={`card shadow-xl ${isDarkMode ? 'bg-gray-800' : 'bg-base-100'}`}>
+                <div className="card-body">
+                  <h2 className="card-title">Reference Solutions</h2>
+                  {referenceSolutionFields.map((field, index) => (
+                    <div key={field.id} className="space-y-4 border p-4 rounded-lg">
+                      <div className="form-control">
+                        <label className="label"><span className={`label-text ${isDarkMode ? 'text-white' : 'text-gray-700'}`}>Language {index + 1}</span></label>
+                        <select {...register(`referenceSolution.${index}.language`)} className={`select select-bordered ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : ''}`}>
+                          <option value="javascript">JavaScript</option>
+                          <option value="java">Java</option>
+                          <option value="cpp">C++</option>
+                        </select>
+                        {errors.referenceSolution?.[index]?.language && <span className="text-error text-sm mt-1">{errors.referenceSolution[index].language.message}</span>}
+                      </div>
+                      <div className="form-control">
+                        <label className="label"><span className={`label-text ${isDarkMode ? 'text-white' : 'text-gray-700'}`}>Complete Code {index + 1}</span></label>
+                        <textarea placeholder="Complete Code" {...register(`referenceSolution.${index}.completeCode`)} className={`textarea textarea-bordered h-32 ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : ''}`}></textarea>
+                        {errors.referenceSolution?.[index]?.completeCode && <span className="text-error text-sm mt-1">{errors.referenceSolution[index].completeCode.message}</span>}
+                      </div>
+                      <button type="button" onClick={() => removeReferenceSolution(index)} className="btn btn-error btn-sm"><Minus size={16} /> Remove</button>
+                    </div>
+                  ))}
+                  <button type="button" onClick={() => appendReferenceSolution({ language: 'javascript', completeCode: '' })} className="btn btn-info btn-sm mt-4"><Plus size={16} /> Add Reference Solution</button>
+                </div>
+              </div>
+
+              <button type="submit" className={`btn btn-primary btn-wide mt-8 ${loading ? 'loading btn-disabled' : ''} ${isDarkMode ? 'bg-[#00A68A] hover:bg-[#008F77] border-none text-white' : ''}`} disabled={loading}>
+                {loading ? 'Updating...' : 'Update Problem'}
+              </button>
+            </form>
+          
+        )}
       </div>
     </div>
   );
