@@ -1,2 +1,13 @@
 @import "tailwindcss";
 @plugin "daisyui";
+
+@keyframes shimmer {
+  0% { background-position: -1000px 0; }
+  100% { background-position: 1000px 0; }
+}
+
+.shimmer-effect {
+  background: linear-gradient(to right, #333333 0%, #4a4a4a 20%, #333333 40%);
+  background-size: 1000px 100%;
+  animation: shimmer 1.5s infinite linear;
+}

@@ -17,6 +17,7 @@
     "@vidstack/react": "^1.12.13",
     "axios": "^1.12.2",
     "daisyui": "^5.1.25",
+    "dotenv": "^17.2.3",
     "lucide-react": "^0.545.0",
     "monaco-editor": "^0.54.0",
     "react": "^19.1.1",

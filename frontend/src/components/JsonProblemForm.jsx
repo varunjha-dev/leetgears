@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import axiosClient from '../utils/axiosClient';
+import ShimmerEffect from './ShimmerEffect';
 
 const problemSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -33,6 +34,7 @@ function JsonProblemForm({ problemData, onSubmitSuccess, isUpdateMode, problemId
     const savedMode = localStorage.getItem('theme');
     return savedMode === 'dark';
   });
+  const [loading, setLoading] = useState(false);
 
   const { register, handleSubmit, formState: { errors } } = useForm({
     defaultValues: {
@@ -41,6 +43,7 @@ function JsonProblemForm({ problemData, onSubmitSuccess, isUpdateMode, problemId
   });
 
   const onSubmit = async (data) => {
+    setLoading(true);
     try {
       const parsedData = JSON.parse(data.jsonInput);
       problemSchema.parse(parsedData); // Validate against Zod schema
@@ -62,6 +65,8 @@ function JsonProblemForm({ problemData, onSubmitSuccess, isUpdateMode, problemId
         console.error('Submission error:', error);
         window.alert(error.response?.data?.message || 'Failed to submit problem.');
       }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -70,25 +75,30 @@ function JsonProblemForm({ problemData, onSubmitSuccess, isUpdateMode, problemId
       <h2 className={`text-xl font-bold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
         {isUpdateMode ? 'Update Problem via JSON' : 'Create Problem via JSON'}
       </h2>
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        <div className="form-control">
-          <label className="label">
-            <span className={`label-text ${isDarkMode ? 'text-white' : 'text-gray-700'}`}>JSON Problem Data</span>
-          </label>
-          <textarea
-            {...register('jsonInput', { required: 'JSON input is required' })}
-            className={`textarea textarea-bordered h-64 font-mono ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : ''} ${errors.jsonInput ? 'textarea-error' : ''}`}
-            placeholder="Enter problem JSON here..."
-          />
-          {errors.jsonInput && <span className="text-error text-sm mt-1">{errors.jsonInput.message}</span>}
-        </div>
-        <button
-          type="submit"
-          className={`btn btn-primary ${isDarkMode ? 'bg-[#00A68A] hover:bg-[#008F77] border-none text-white' : ''} w-full`}
-        >
-          {isUpdateMode ? 'Update Problem' : 'Create Problem'}
-        </button>
-      </form>
+      {loading ? (
+        <ShimmerEffect />
+      ) : (
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <div className="form-control">
+            <label className="label">
+              <span className={`label-text ${isDarkMode ? 'text-white' : 'text-gray-700'}`}>JSON Problem Data</span>
+            </label>
+            <textarea
+              {...register('jsonInput', { required: 'JSON input is required' })}
+              className={`textarea textarea-bordered h-64 font-mono ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : ''} ${errors.jsonInput ? 'textarea-error' : ''}`}
+              placeholder="Enter problem JSON here..."
+            />
+            {errors.jsonInput && <span className="text-error text-sm mt-1">{errors.jsonInput.message}</span>}
+          </div>
+          <button
+            type="submit"
+            className={`btn btn-primary ${isDarkMode ? 'bg-[#00A68A] hover:bg-[#008F77] border-none text-white' : ''} w-full`}
+            disabled={loading}
+          >
+            {isUpdateMode ? 'Update Problem' : 'Create Problem'}
+          </button>
+        </form>
+      )}
     </div>
   );
 }

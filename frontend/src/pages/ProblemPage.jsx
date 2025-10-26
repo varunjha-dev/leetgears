@@ -277,7 +277,13 @@ const ProblemPage = () => {
                 <div className="prose max-w-none">
                   <h2 className="text-xl font-bold mb-4">Editorial</h2>
                   <div className="whitespace-pre-wrap text-sm leading-relaxed">
-                    <Editorial secureUrl={problem.secureUrl} thumbnailUrl={problem.thumbnailUrl} duration={problem.duration}/>
+                    <Editorial 
+                      secureUrl={problem.secureUrl} 
+                      thumbnailUrl={problem.thumbnailUrl} 
+                      duration={problem.duration}
+                      problemTitle={problem.title}
+                      problemDescription={problem.description}
+                    />
                   </div>
                 </div>
               )}

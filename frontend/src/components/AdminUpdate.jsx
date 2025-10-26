@@ -139,9 +139,9 @@ function AdminUpdate() {
   }
 
   return (
+    <>
+    <AdminNavbar />
     <div className={`min-h-screen ${isDarkMode ? 'bg-[#282828] text-white' : 'bg-base-200'}`}>
-      <AdminNavbar />
-
       <div className="container mx-auto p-4">
         <h1 className={`text-3xl font-bold text-center mb-8 ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>Update Problem</h1>
         
@@ -309,6 +309,7 @@ function AdminUpdate() {
         )}
       </div>
     </div>
+    </>
   );
 }
 
