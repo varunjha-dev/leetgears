@@ -32,11 +32,11 @@ const register = async (req,res) => {
         
         // FIXED: Proper cookie options for CORS
         const cookieOptions = {
-            httpOnly: true,                    // Prevents XSS attacks
-            secure: false,                     // false for localhost HTTP
-            sameSite: 'lax',                   // 'lax' works for localhost different ports
-            maxAge: 60*60*1000,                // 1 hour in milliseconds
-            path: '/'                          // Available for all routes
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+            maxAge: 60*60*1000,
+            path: '/'
         };
         
         res.cookie('token', token, cookieOptions);
@@ -60,7 +60,7 @@ const login = async (req,res) => {
         if(!password)
             throw new Error("Invalid Credentials");
         const user = await User.findOne({emailId});
-
+        if (!user) throw new Error("Invalid Credentials");
         const match = await bcrypt.compare(password,user.password);
         if(!match)
             throw new Error("Invalid Credentials");
@@ -81,8 +81,8 @@ const login = async (req,res) => {
         // FIXED: Same cookie options as register
         const cookieOptions = {
             httpOnly: true,
-            secure: false,
-            sameSite: 'lax',
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
             maxAge: 60*60*1000,
             path: '/'
         };
@@ -114,8 +114,8 @@ const logout = async (req,res) => {
         // Clear cookie with same options
         res.cookie("token", "", {
             httpOnly: true,
-            secure: false,
-            sameSite: 'lax',
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
             expires: new Date(0),
             path: '/'
         });
@@ -150,8 +150,8 @@ const adminRegister = async (req,res) => {
         // FIXED: Same cookie options
         const cookieOptions = {
             httpOnly: true,
-            secure: false,
-            sameSite: 'lax',
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
             maxAge: 60*60*1000,
             path: '/'
         };
