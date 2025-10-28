@@ -14,10 +14,6 @@ function AdminUpload() {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [uploadedVideo, setUploadedVideo] = useState(null);
   const [toast, setToast] = useState(null);
-  const [isDarkMode, setIsDarkMode] = useState(() => {
-    const savedMode = localStorage.getItem('theme');
-    return savedMode === 'dark';
-  });
   const [dragActive, setDragActive] = useState(false);
 
   const {
@@ -147,32 +143,21 @@ function AdminUpload() {
       {/* Toast Notification */}
       {toast && (
         <div className="fixed top-20 right-4 z-50 animate-in slide-in-from-top">
-          <div className={`px-6 py-4 rounded-lg shadow-xl flex items-center gap-3 min-w-[320px] ${
-            toast.type === 'success' 
-              ? 'bg-green-100 text-green-800 border border-green-200' 
-              : 'bg-red-100 text-red-800 border border-red-200'
-          }`}>
-            {toast.type === 'success' ? (
-              <CheckCircle className="w-5 h-5" />
-            ) : (
-              <AlertCircle className="w-5 h-5" />
-            )}
+          <div className={`alert ${toast.type === 'success' ? 'alert-success' : 'alert-error'} shadow-xl`}>
             <span className="font-medium">{toast.message}</span>
           </div>
         </div>
       )}
 
       {/* Main Content */}
-      <div className={`min-h-screen py-8 ${isDarkMode ? 'bg-[#282828]' : 'bg-gray-100'}`}>
+      <div className="min-h-screen py-8 bg-base-200">
         <div className="container mx-auto px-4 max-w-3xl">
           
           {/* Header Section */}
           <div className="mb-8">
             <button
               onClick={() => navigate('/admin/video')}
-              className={`flex items-center gap-2 mb-4 text-sm font-medium hover:text-green-500 transition-colors ${
-                isDarkMode ? 'text-gray-400' : 'text-gray-600'
-              }`}
+              className="flex items-center gap-2 mb-4 text-sm font-medium hover:text-green-500 transition-colors opacity-70"
             >
               <ArrowLeft size={16} />
               Back to Video Management
@@ -183,20 +168,14 @@ function AdminUpload() {
                 <Upload className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h1 className={`text-3xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                  Upload Video
-                </h1>
-                <p className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}>
-                  Upload tutorial video for this problem
-                </p>
+                <h1 className="text-3xl font-bold">Upload Video</h1>
+                <p className="opacity-70">Upload tutorial video for this problem</p>
               </div>
             </div>
           </div>
 
           {/* Upload Form Card */}
-          <div className={`card shadow-xl rounded-lg ${
-            isDarkMode ? 'bg-gray-800' : 'bg-white'
-          }`}>
+          <div className="card bg-base-100 shadow-xl">
             <div className="card-body p-8">
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                 
@@ -204,12 +183,10 @@ function AdminUpload() {
                 <div
                   className={`relative border-2 border-dashed rounded-lg p-8 transition-all ${
                     dragActive
-                      ? 'border-green-500 bg-green-50 dark:bg-green-900/20'
+                      ? 'border-green-500 bg-green-50'
                       : errors.videoFile
-                      ? 'border-red-300 dark:border-red-700'
-                      : isDarkMode
-                      ? 'border-gray-600 hover:border-gray-500'
-                      : 'border-gray-300 hover:border-gray-400'
+                      ? 'border-error'
+                      : 'border-base-300 hover:border-base-content/30'
                   }`}
                   onDragEnter={handleDrag}
                   onDragLeave={handleDrag}
@@ -240,24 +217,22 @@ function AdminUpload() {
                   />
                   
                   <div className="text-center">
-                    <div className={`w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center ${
-                      isDarkMode ? 'bg-gray-700' : 'bg-gray-100'
-                    }`}>
-                      <Video className={`w-8 h-8 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`} />
+                    <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-base-200 flex items-center justify-center">
+                      <Video className="w-8 h-8 opacity-70" />
                     </div>
                     
-                    <p className={`text-lg font-medium mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                    <p className="text-lg font-medium mb-2">
                       {dragActive ? 'Drop your video here' : 'Drop video here or click to browse'}
                     </p>
                     
-                    <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                    <p className="text-sm opacity-70">
                       Supports MP4, MOV, AVI up to 100MB
                     </p>
                   </div>
                 </div>
 
                 {errors.videoFile && (
-                  <div className="flex items-center gap-2 text-red-600 text-sm">
+                  <div className="alert alert-error">
                     <AlertCircle size={16} />
                     <span>{errors.videoFile.message}</span>
                   </div>
@@ -265,26 +240,14 @@ function AdminUpload() {
 
                 {/* Selected File Info */}
                 {selectedFile && !uploading && (
-                  <div className={`rounded-lg p-4 border ${
-                    isDarkMode 
-                      ? 'bg-gray-700 border-gray-600' 
-                      : 'bg-blue-50 border-blue-200'
-                  }`}>
+                  <div className="rounded-lg p-4 bg-info/10 border border-info">
                     <div className="flex items-center gap-3">
-                      <div className={`p-3 rounded-lg ${
-                        isDarkMode ? 'bg-gray-600' : 'bg-blue-100'
-                      }`}>
-                        <FileVideo className={`w-6 h-6 ${
-                          isDarkMode ? 'text-blue-400' : 'text-blue-600'
-                        }`} />
+                      <div className="p-3 rounded-lg bg-info/20">
+                        <FileVideo className="w-6 h-6 text-info" />
                       </div>
                       <div className="flex-1">
-                        <p className={`font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                          {selectedFile.name}
-                        </p>
-                        <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                          {formatFileSize(selectedFile.size)}
-                        </p>
+                        <p className="font-semibold">{selectedFile.name}</p>
+                        <p className="text-sm opacity-70">{formatFileSize(selectedFile.size)}</p>
                       </div>
                     </div>
                   </div>
@@ -292,24 +255,17 @@ function AdminUpload() {
 
                 {/* Upload Progress */}
                 {uploading && (
-                  <div className={`rounded-lg p-6 ${
-                    isDarkMode ? 'bg-gray-700' : 'bg-gray-50'
-                  }`}>
+                  <div className="rounded-lg p-6 bg-base-200">
                     <div className="flex justify-between text-sm mb-3">
-                      <span className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                        Uploading...
-                      </span>
-                      <span className={`font-bold ${isDarkMode ? 'text-green-400' : 'text-green-600'}`}>
-                        {uploadProgress}%
-                      </span>
+                      <span className="font-medium">Uploading...</span>
+                      <span className="font-bold text-success">{uploadProgress}%</span>
                     </div>
-                    <div className="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-3">
-                      <div 
-                        className="bg-green-500 h-3 rounded-full transition-all duration-300"
-                        style={{ width: `${uploadProgress}%` }}
-                      ></div>
-                    </div>
-                    <p className={`text-xs mt-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                    <progress 
+                      className="progress progress-success w-full" 
+                      value={uploadProgress} 
+                      max="100"
+                    ></progress>
+                    <p className="text-xs mt-2 opacity-70">
                       Please don't close this page while uploading
                     </p>
                   </div>
@@ -317,19 +273,13 @@ function AdminUpload() {
 
                 {/* Success Message */}
                 {uploadedVideo && (
-                  <div className="rounded-lg p-6 bg-green-100 dark:bg-green-900/30 border border-green-200 dark:border-green-800">
-                    <div className="flex items-start gap-3">
-                      <div className="p-2 bg-green-500 rounded-full">
-                        <CheckCircle className="w-5 h-5 text-white" />
-                      </div>
-                      <div>
-                        <h3 className="font-bold text-green-800 dark:text-green-300 mb-2">
-                          Upload Successful!
-                        </h3>
-                        <div className="space-y-1 text-sm text-green-700 dark:text-green-400">
-                          <p>Duration: {formatDuration(uploadedVideo.duration)}</p>
-                          <p>Uploaded: {new Date(uploadedVideo.uploadedAt).toLocaleString()}</p>
-                        </div>
+                  <div className="alert alert-success">
+                    <CheckCircle className="w-5 h-5" />
+                    <div>
+                      <h3 className="font-bold">Upload Successful!</h3>
+                      <div className="text-sm space-y-1 mt-1">
+                        <p>Duration: {formatDuration(uploadedVideo.duration)}</p>
+                        <p>Uploaded: {new Date(uploadedVideo.uploadedAt).toLocaleString()}</p>
                       </div>
                     </div>
                   </div>
@@ -340,11 +290,7 @@ function AdminUpload() {
                   <button
                     type="button"
                     onClick={() => navigate('/admin/video')}
-                    className={`flex-1 px-6 py-3 rounded-lg font-medium transition-colors ${
-                      isDarkMode 
-                        ? 'bg-gray-700 hover:bg-gray-600 text-white' 
-                        : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
-                    }`}
+                    className="flex-1 btn btn-ghost"
                     disabled={uploading}
                   >
                     Cancel
@@ -352,11 +298,11 @@ function AdminUpload() {
                   <button
                     type="submit"
                     disabled={uploading || !selectedFile}
-                    className="flex-1 px-6 py-3 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white rounded-lg font-medium shadow-lg transition-all flex items-center justify-center gap-2"
+                    className="flex-1 btn btn-success gap-2"
                   >
                     {uploading ? (
                       <>
-                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        <span className="loading loading-spinner loading-sm"></span>
                         Uploading...
                       </>
                     ) : (
@@ -372,32 +318,26 @@ function AdminUpload() {
           </div>
 
           {/* Info Card */}
-          <div className={`mt-6 rounded-lg p-6 border ${
-            isDarkMode 
-              ? 'bg-gray-800/50 border-gray-700' 
-              : 'bg-blue-50 border-blue-200'
-          }`}>
-            <h3 className={`font-bold mb-3 flex items-center gap-2 ${
-              isDarkMode ? 'text-white' : 'text-gray-900'
-            }`}>
-              <AlertCircle size={18} className="text-blue-500" />
+          <div className="mt-6 rounded-lg p-6 bg-info/10 border border-info/30">
+            <h3 className="font-bold mb-3 flex items-center gap-2">
+              <AlertCircle size={18} className="text-info" />
               Upload Guidelines
             </h3>
-            <ul className={`space-y-2 text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+            <ul className="space-y-2 text-sm opacity-80">
               <li className="flex items-start gap-2">
-                <span className="text-blue-500 mt-0.5">•</span>
+                <span className="text-info mt-0.5">•</span>
                 <span>Maximum file size: 100MB</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-blue-500 mt-0.5">•</span>
+                <span className="text-info mt-0.5">•</span>
                 <span>Supported formats: MP4, MOV, AVI</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-blue-500 mt-0.5">•</span>
+                <span className="text-info mt-0.5">•</span>
                 <span>Ensure good audio quality and clear screen recording</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-blue-500 mt-0.5">•</span>
+                <span className="text-info mt-0.5">•</span>
                 <span>Videos are automatically optimized for streaming</span>
               </li>
             </ul>
