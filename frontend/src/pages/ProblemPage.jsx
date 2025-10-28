@@ -2,11 +2,11 @@ import { useState, useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import Editor from '@monaco-editor/react';
 import { useParams, useNavigate } from 'react-router';
-import axiosClient from "../utils/axiosClient"
-import SubmissionHistory from "../components/SubmissionHistory"
+import axiosClient from "../utils/axiosClient";
+import SubmissionHistory from "../components/SubmissionHistory";
 import ChatAi from '../components/ChatAi';
 import Editorial from '../components/Editorial';
-import { BrainCircuit, Sun, Moon } from 'lucide-react';
+import { BrainCircuit, Sun, Moon, Play, Send, Code2, FileText, Sparkles, History as HistoryIcon, BookOpen, MessageSquare } from 'lucide-react';
 import { useSelector } from 'react-redux';
 
 const ProblemPage = () => {
@@ -30,7 +30,7 @@ const ProblemPage = () => {
   };
 
   const [problem, setProblem] = useState(null);
-  const [selectedLanguage, setSelectedLanguage] = useState('java'); // Default to Java
+  const [selectedLanguage, setSelectedLanguage] = useState('java');
   const [code, setCode] = useState('');
   const [loading, setLoading] = useState(false);
   const [runResult, setRunResult] = useState(null);
@@ -38,41 +38,30 @@ const ProblemPage = () => {
   const [activeLeftTab, setActiveLeftTab] = useState('description');
   const [activeRightTab, setActiveRightTab] = useState('code');
   const editorRef = useRef(null);
-  let {id}  = useParams();
+  let { id } = useParams();
   const navigate = useNavigate();
   const { isAuthenticated } = useSelector((state) => state.auth);
 
   const { handleSubmit } = useForm();
 
-  // Fetch problem data
   useEffect(() => {
     const fetchProblem = async () => {
       setLoading(true);
       try {
-        
         const response = await axiosClient.get(`/problem/problemById/${id}`);
-        
         const initialCode = response.data.startCode.find((sc) => {
-        
-        if (sc.language.toLowerCase() == "c++" && selectedLanguage == 'cpp')
-        return true;
-        else if (sc.language.toLowerCase() == "java" && selectedLanguage == 'java')
-        return true;
-        else if (sc.language.toLowerCase() == "javascript" && selectedLanguage == 'javascript')
-        return true;
+          if (sc.language.toLowerCase() == "c++" && selectedLanguage == 'cpp')
+            return true;
+          else if (sc.language.toLowerCase() == "java" && selectedLanguage == 'java')
+            return true;
+          else if (sc.language.toLowerCase() == "javascript" && selectedLanguage == 'javascript')
+            return true;
+          return false;
+        })?.initialCode || '';
 
-        return false;
-        })?.initialCode || ''; // Changed default to empty string
-
-        // console.log(initialCode);
         setProblem(response.data);
-        // console.log(response.data.startCode);
-        
-
-        // console.log(initialCode);
         setCode(initialCode);
         setLoading(false);
-        
       } catch (error) {
         console.error('Error fetching problem:', error);
         setLoading(false);
@@ -82,7 +71,6 @@ const ProblemPage = () => {
     fetchProblem();
   }, [id]);
 
-  // Update code when language changes
   useEffect(() => {
     if (problem) {
       const initialCode = problem.startCode.find(sc => sc.language === selectedLanguage)?.initialCode || '';
@@ -105,7 +93,7 @@ const ProblemPage = () => {
   const handleRun = async () => {
     setLoading(true);
     setRunResult(null);
-    
+
     try {
       const response = await axiosClient.post(`/submission/run/${id}`, {
         code,
@@ -115,7 +103,6 @@ const ProblemPage = () => {
       setRunResult(response.data);
       setLoading(false);
       setActiveRightTab('testcase');
-      
     } catch (error) {
       console.error('Error running code:', error);
       setRunResult({
@@ -130,17 +117,16 @@ const ProblemPage = () => {
   const handleSubmitCode = async () => {
     setLoading(true);
     setSubmitResult(null);
-    
+
     try {
-        const response = await axiosClient.post(`/submission/submit/${id}`, {
-        code:code,
+      const response = await axiosClient.post(`/submission/submit/${id}`, {
+        code: code,
         language: selectedLanguage
       });
 
-       setSubmitResult(response.data);
-       setLoading(false);
-       setActiveRightTab('result');
-      
+      setSubmitResult(response.data);
+      setLoading(false);
+      setActiveRightTab('result');
     } catch (error) {
       console.error('Error submitting code:', error);
       setSubmitResult(null);
@@ -158,12 +144,12 @@ const ProblemPage = () => {
     }
   };
 
-  const getDifficultyColor = (difficulty) => {
-    switch (difficulty) {
-      case 'easy': return 'text-green-500';
-      case 'medium': return 'text-yellow-500';
-      case 'hard': return 'text-red-500';
-      default: return 'text-gray-500';
+  const getDifficultyStyle = (difficulty) => {
+    switch (difficulty?.toLowerCase()) {
+      case 'easy': return 'badge-success';
+      case 'medium': return 'badge-warning';
+      case 'hard': return 'badge-error';
+      default: return 'badge-neutral';
     }
   };
 
@@ -177,350 +163,364 @@ const ProblemPage = () => {
 
   if (loading && !problem) {
     return (
-      <div className="flex justify-center items-center min-h-screen">
-        <span className="loading loading-spinner loading-lg"></span>
+      <div className="flex justify-center items-center min-h-screen bg-base-100">
+        <div className="text-center space-y-4">
+          <div className="w-16 h-16 border-4 border-gray-300 border-t-green-500 rounded-full animate-spin mx-auto"></div>
+          <p className="font-medium">Loading problem...</p>
+        </div>
       </div>
     );
   }
 
+  const leftTabs = [
+    { id: 'description', label: 'Description', icon: <FileText size={16} /> },
+    { id: 'editorial', label: 'Editorial', icon: <BookOpen size={16} /> },
+    { id: 'solutions', label: 'Solutions', icon: <Code2 size={16} /> },
+    { id: 'submissions', label: 'Submissions', icon: <HistoryIcon size={16} /> },
+    { id: 'chatAI', label: 'AI Helper', icon: <MessageSquare size={16} /> },
+  ];
+
   return (
-    <div className={`h-screen flex ${isDarkMode ? 'bg-[#282828] text-white' : 'bg-base-100'}`}>
-      {/* Left Panel */}
-      <div className={`w-1/2 flex flex-col ${isDarkMode ? 'border-gray-700' : 'border-base-300'}`}>
-        {/* Header for Left Panel */}
-        <div className={`navbar ${isDarkMode ? 'bg-[#282828]' : 'bg-base-100'} shadow-lg px-4`}>
-          <div className="flex-1">
-            <button onClick={handleLogoClick} className="btn btn-ghost text-xl normal-case">
-              <BrainCircuit size={24} className="text-green-500 mr-2" /> 
-              <span className={`${isDarkMode ? 'text-white' : 'text-gray-800'}`}>LeetGears</span>
-            </button>
-          </div>
-          <div className="flex-none">
-            <button onClick={toggleDarkMode} className="btn btn-ghost btn-circle">
-              {isDarkMode ? <Sun size={24} className="text-white" /> : <Moon size={24} className="text-gray-800" />}
-            </button>
-          </div>
-        </div>
-        {/* Left Tabs */}
-        <div className={`tabs tabs-bordered ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-base-200'} px-4`}>
-          <button 
-            className={`tab ${activeLeftTab === 'description' ? (isDarkMode ? 'tab-active text-white' : 'tab-active') : (isDarkMode ? 'text-gray-300' : '')}`}
-            onClick={() => setActiveLeftTab('description')}
-          >
-            Description
-          </button>
-          <button 
-            className={`tab ${activeLeftTab === 'editorial' ? (isDarkMode ? 'tab-active text-white' : 'tab-active') : (isDarkMode ? 'text-gray-300' : '')}`}
-            onClick={() => setActiveLeftTab('editorial')}
-          >
-            Editorial
-          </button>
-          <button 
-            className={`tab ${activeLeftTab === 'solutions' ? (isDarkMode ? 'tab-active text-white' : 'tab-active') : (isDarkMode ? 'text-gray-300' : '')}`}
-            onClick={() => setActiveLeftTab('solutions')}
-          >
-            Solutions
-          </button>
-          <button 
-            className={`tab ${activeLeftTab === 'submissions' ? (isDarkMode ? 'tab-active text-white' : 'tab-active') : (isDarkMode ? 'text-gray-300' : '')}`}
-            onClick={() => setActiveLeftTab('submissions')}
-          >
-            Submissions
-          </button>
-          <button 
-            className={`tab ${activeLeftTab === 'chatAI' ? (isDarkMode ? 'tab-active text-white' : 'tab-active') : (isDarkMode ? 'text-gray-300' : '')}`}
-            onClick={() => setActiveLeftTab('chatAI')}
-          >
-            Chat with AI
+    <div className="h-screen flex flex-col bg-base-100">
+      {/* Top Navbar */}
+      <div className="navbar bg-base-100 border-b border-base-300 px-4 h-14 min-h-14">
+        <div className="flex-1">
+          <button onClick={handleLogoClick} className="btn btn-ghost text-xl normal-case gap-2">
+            <BrainCircuit size={24} className="text-green-500" />
+            <span className="font-bold">LeetGears</span>
           </button>
         </div>
+        <div className="flex-none">
+          <button onClick={toggleDarkMode} className="btn btn-ghost btn-circle btn-sm">
+            {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
+          </button>
+        </div>
+      </div>
 
-        {/* Left Content */}
-        <div className="flex-1 overflow-y-auto p-6">
-          {problem && (
-            <>
-              {activeLeftTab === 'description' && (
-                <div>
-                  <div className="flex items-center gap-4 mb-6">
-                    <h1 className="text-2xl font-bold">{problem.title}</h1>
-                    <div className={`badge badge-outline ${getDifficultyColor(problem.difficulty)}`}>
-                      {problem.difficulty.charAt(0).toUpperCase() + problem.difficulty.slice(1)}
+      {/* Main Content */}
+      <div className="flex-1 flex overflow-hidden">
+        {/* Left Panel */}
+        <div className="w-1/2 flex flex-col border-r border-base-300">
+          {/* Left Tabs */}
+          <div className="flex border-b border-base-300 bg-base-200">
+            {leftTabs.map(tab => (
+              <button
+                key={tab.id}
+                className={`flex items-center gap-2 px-4 py-3 text-sm font-medium transition-colors border-b-2 ${
+                  activeLeftTab === tab.id
+                    ? 'border-green-500 text-green-500 bg-base-100'
+                    : 'border-transparent hover:bg-base-100'
+                }`}
+                onClick={() => setActiveLeftTab(tab.id)}
+              >
+                {tab.icon}
+                {tab.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Left Content */}
+          <div className="flex-1 overflow-y-auto p-6 bg-base-100">
+            {problem && (
+              <>
+                {activeLeftTab === 'description' && (
+                  <div className="space-y-6">
+                    {/* Title & Meta */}
+                    <div>
+                      <h1 className="text-2xl font-bold mb-3">{problem.title}</h1>
+                      <div className="flex items-center gap-2">
+                        <span className={`badge badge-sm ${getDifficultyStyle(problem.difficulty)}`}>
+                          {problem.difficulty?.charAt(0).toUpperCase() + problem.difficulty?.slice(1)}
+                        </span>
+                        <span className="badge badge-sm badge-info badge-outline">{problem.tags}</span>
+                      </div>
                     </div>
-                    <div className="badge badge-info">{problem.tags}</div>
-                  </div>
 
-                  <div className="prose max-w-none">
-                    <div className="whitespace-pre-wrap text-sm leading-relaxed">
-                      {problem.description}
+                    {/* Description */}
+                    <div className="prose max-w-none">
+                      <div className="text-sm leading-relaxed whitespace-pre-wrap">
+                        {problem.description}
+                      </div>
                     </div>
-                  </div>
 
-                  <div className="mt-8">
-                    <h3 className="text-lg font-semibold mb-4">Examples:</h3>
-                    <div className="space-y-4">
-                      {problem.visibleTestCases.map((example, index) => (
-                        <div key={index} className={`p-4 rounded-lg ${isDarkMode ? 'bg-gray-800' : 'bg-base-200'}`}>
-                          <h4 className="font-semibold mb-2">Example {index + 1}:</h4>
-                          <div className="space-y-2 text-sm font-mono">
-                            <div><strong>Input:</strong> {example.input}</div>
-                            <div><strong>Output:</strong> {example.output}</div>
-                            <div><strong>Explanation:</strong> {example.explanation}</div>
+                    {/* Examples */}
+                    <div>
+                      <h3 className="text-lg font-semibold mb-4">Examples</h3>
+                      <div className="space-y-4">
+                        {problem.visibleTestCases.map((example, index) => (
+                          <div key={index} className="card bg-base-200 shadow-sm">
+                            <div className="card-body p-4">
+                              <h4 className="font-semibold text-sm mb-3">Example {index + 1}</h4>
+                              <div className="space-y-2 text-sm">
+                                <div className="font-mono">
+                                  <span className="font-semibold">Input:</span>
+                                  <div className="mt-1 p-2 bg-base-300 rounded">{example.input}</div>
+                                </div>
+                                <div className="font-mono">
+                                  <span className="font-semibold">Output:</span>
+                                  <div className="mt-1 p-2 bg-base-300 rounded">{example.output}</div>
+                                </div>
+                                <div>
+                                  <span className="font-semibold">Explanation:</span>
+                                  <div className="mt-1">{example.explanation}</div>
+                                </div>
+                              </div>
+                            </div>
                           </div>
-                        </div>
-                      ))}
+                        ))}
+                      </div>
                     </div>
                   </div>
-                </div>
-              )}
+                )}
 
-              {activeLeftTab === 'editorial' && (
-                <div className="prose max-w-none">
-                  <h2 className="text-xl font-bold mb-4">Editorial</h2>
-                  <div className="whitespace-pre-wrap text-sm leading-relaxed">
-                    <Editorial 
-                      secureUrl={problem.secureUrl} 
-                      thumbnailUrl={problem.thumbnailUrl} 
+                {activeLeftTab === 'editorial' && (
+                  <div>
+                    <h2 className="text-2xl font-bold mb-6">Editorial</h2>
+                    <Editorial
+                      secureUrl={problem.secureUrl}
+                      thumbnailUrl={problem.thumbnailUrl}
                       duration={problem.duration}
                       problemTitle={problem.title}
                       problemDescription={problem.description}
                     />
                   </div>
-                </div>
-              )}
+                )}
 
-              {activeLeftTab === 'solutions' && (
-                <div>
-                  <h2 className="text-xl font-bold mb-4">Solutions</h2>
-                  <div className="space-y-6">
-                    {problem.referenceSolution?.map((solution, index) => (
-                      <div key={index} className={`rounded-lg ${isDarkMode ? 'border border-gray-700' : 'border border-base-300'}`}>
-                        <div className={`px-4 py-2 rounded-t-lg ${isDarkMode ? 'bg-gray-800' : 'bg-base-200'}`}>
-                          <h3 className="font-semibold">{problem?.title} - {solution?.language}</h3>
+                {activeLeftTab === 'solutions' && (
+                  <div>
+                    <h2 className="text-2xl font-bold mb-6">Solutions</h2>
+                    <div className="space-y-4">
+                      {problem.referenceSolution?.map((solution, index) => (
+                        <div key={index} className="card bg-base-200 shadow-sm">
+                          <div className="card-body p-0">
+                            <div className="px-4 py-3 border-b border-base-300 flex items-center justify-between">
+                              <h3 className="font-semibold">{solution?.language}</h3>
+                              <span className="badge badge-sm badge-outline">{problem?.title}</span>
+                            </div>
+                            <pre className="p-4 overflow-x-auto text-sm">
+                              <code className="font-mono">{solution?.completeCode}</code>
+                            </pre>
+                          </div>
                         </div>
-                        <div className="p-4">
-                          <pre className={`p-4 rounded text-sm overflow-x-auto ${isDarkMode ? 'bg-gray-900 text-gray-100' : 'bg-base-300'}`}>
-                            <code>{solution?.completeCode}</code>
-                          </pre>
+                      )) || (
+                        <div className="text-center py-12 text-base-content/50">
+                          Solutions will be available after you solve the problem
                         </div>
-                      </div>
-                    )) || <p className={`text-gray-500 ${isDarkMode ? 'text-gray-400' : ''}`}>Solutions will be available after you solve the problem.</p>}
+                      )}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
 
-              {activeLeftTab === 'submissions' && (
-                <div>
-                  <h2 className="text-xl font-bold mb-4">My Submissions</h2>
-                  <div className={`text-gray-500 ${isDarkMode ? 'text-gray-400' : ''}`}>
-                   <SubmissionHistory problemId={id} />
+                {activeLeftTab === 'submissions' && (
+                  <div>
+                    <SubmissionHistory problemId={id} />
                   </div>
-                </div>
-              )}
-              {activeLeftTab === 'chatAI' && (
-                <div className="prose max-w-none">
-                  <h2 className="text-xl font-bold mb-4">CHAT with AI</h2>
-                  <div className="whitespace-pre-wrap text-sm leading-relaxed">
-                    <ChatAi problem={problem}></ChatAi>
-                  </div>
-                </div>
-              )}
-            </>
-          )}
-        </div>
-      </div>
+                )}
 
-      {/* Right Panel */}
-      <div className="w-1/2 flex flex-col">
-        {/* Right Tabs */}
-        <div className={`tabs tabs-bordered ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-base-200'} px-4`}>
-          <button 
-            className={`tab ${activeRightTab === 'code' ? (isDarkMode ? 'tab-active text-white' : 'tab-active') : (isDarkMode ? 'text-gray-300' : '')}`}
-            onClick={() => setActiveRightTab('code')}
-          >
-            Code
-          </button>
-          <button 
-            className={`tab ${activeRightTab === 'testcase' ? (isDarkMode ? 'tab-active text-white' : 'tab-active') : (isDarkMode ? 'text-gray-300' : '')}`}
-            onClick={() => setActiveRightTab('testcase')}
-          >
-            Testcase
-          </button>
-          <button 
-            className={`tab ${activeRightTab === 'result' ? (isDarkMode ? 'tab-active text-white' : 'tab-active') : (isDarkMode ? 'text-gray-300' : '')}`}
-            onClick={() => setActiveRightTab('result')}
-          >
-            Result
-          </button>
+                {activeLeftTab === 'chatAI' && (
+                  <div>
+                    <h2 className="text-2xl font-bold mb-6">AI Assistant</h2>
+                    <ChatAi problem={problem} />
+                  </div>
+                )}
+              </>
+            )}
+          </div>
         </div>
 
-        {/* Right Content */}
-        <div className="flex-1 flex flex-col">
-          {activeRightTab === 'code' && (
-            <div className="flex-1 flex flex-col">
-              {/* Language Selector */}
-              <div className={`flex justify-between items-center p-4 ${isDarkMode ? 'border-b border-gray-700 bg-gray-800' : 'border-b border-base-300'}`}>
-                <div className="flex gap-2">
-                  <select
-                    value={selectedLanguage}
-                    onChange={(e) => handleLanguageChange(e.target.value)}
-                    className={`select select-bordered ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : ''}`}
-                  >
-                    <option value="java">Java</option>
-                    <option value="javascript">JavaScript</option>
-                    <option value="cpp">C++</option>
-                  </select>
-                </div>
-              </div>
+        {/* Right Panel */}
+        <div className="w-1/2 flex flex-col bg-base-100">
+          {/* Code Editor Header */}
+          <div className="flex items-center justify-between px-4 py-2 border-b border-base-300 bg-base-200">
+            <select
+              value={selectedLanguage}
+              onChange={(e) => handleLanguageChange(e.target.value)}
+              className="select select-sm select-bordered max-w-xs"
+            >
+              <option value="java">Java</option>
+              <option value="javascript">JavaScript</option>
+              <option value="cpp">C++</option>
+            </select>
 
-              {/* Monaco Editor */}
-              <div className="flex-1">
-                <Editor
-                  height="100%"
-                  language={getLanguageForMonaco(selectedLanguage)}
-                  value={code}
-                  onChange={handleEditorChange}
-                  onMount={handleEditorDidMount}
-                  theme={isDarkMode ? "vs-dark" : "vs-light"}
-                  options={{
-                    fontSize: 14,
-                    minimap: { enabled: false },
-                    scrollBeyondLastLine: false,
-                    automaticLayout: true,
-                    tabSize: 2,
-                    insertSpaces: true,
-                    wordWrap: 'on',
-                    lineNumbers: 'on',
-                    glyphMargin: false,
-                    folding: true,
-                    lineDecorationsWidth: 10,
-                    lineNumbersMinChars: 3,
-                    renderLineHighlight: 'line',
-                    selectOnLineNumbers: true,
-                    roundedSelection: false,
-                    readOnly: false,
-                    cursorStyle: 'line',
-                    mouseWheelZoom: true,
-                  }}/>
-              </div>
-
-              {/* Action Buttons */}
-              <div className={`p-4 border-t ${isDarkMode ? 'border-gray-700 bg-gray-800' : 'border-base-300'} flex justify-between`}>
-                <div className="flex gap-2">
-                  <button 
-                    className={`btn btn-ghost btn-sm ${isDarkMode ? 'text-gray-300 hover:bg-gray-700' : ''}`}
-                    onClick={() => setActiveRightTab('testcase')}
-                  >
-                    Console
-                  </button>
-                </div>
-                <div className="flex gap-2">
-                  <button
-                    className={`btn btn-outline btn-sm ${loading ? 'loading' : ''} ${isDarkMode ? 'text-green-400 border-green-400 hover:bg-green-700 hover:border-green-700' : ''}`}
-                    onClick={handleRun}
-                    disabled={loading}
-                  >
-                    Run
-                  </button>
-                  <button
-                    className={`btn btn-primary btn-sm ${loading ? 'loading' : ''} bg-[#00A68A] hover:bg-[#008F77] border-none text-white`}
-                    onClick={handleSubmitCode}
-                    disabled={loading}
-                  >
-                    Submit
-                  </button>
-                </div>
-              </div>
+            <div className="flex items-center gap-2">
+              <button
+                className={`btn btn-sm gap-2 ${loading ? 'loading' : ''}`}
+                onClick={handleRun}
+                disabled={loading}
+              >
+                {!loading && <Play size={16} />}
+                Run
+              </button>
+              <button
+                className={`btn btn-sm btn-success gap-2 ${loading ? 'loading' : ''}`}
+                onClick={handleSubmitCode}
+                disabled={loading}
+              >
+                {!loading && <Send size={16} />}
+                Submit
+              </button>
             </div>
-          )}
+          </div>
 
-          {activeRightTab === 'testcase' && (
-            <div className="flex-1 p-4 overflow-y-auto">
-              <h3 className="font-semibold mb-4">Test Results</h3>
-              {runResult ? (
-                <div className={`alert ${runResult.success ? 'alert-success' : 'alert-error'} mb-4 ${isDarkMode ? 'bg-gray-800 text-white' : ''}`}>
-                  <div>
-                    {runResult.success ? (
-                      <div>
-                        <h4 className="font-bold">✅ All test cases passed!</h4>
-                        <p className="text-sm mt-2">Runtime: {runResult.runtime+" sec"}</p>
-                        <p className="text-sm">Memory: {runResult.memory+" KB"}</p>
-                        
-                        <div className="mt-4 space-y-2">
-                          {runResult.testCases.map((tc, i) => (
-                            <div key={i} className={`p-3 rounded text-xs ${isDarkMode ? 'bg-gray-900' : 'bg-base-100'}`}>
-                              <div className="font-mono">
-                                <div><strong>Input:</strong> {tc.stdin}</div>
-                                <div><strong>Expected:</strong> {tc.expected_output}</div>
-                                <div><strong>Output:</strong> {tc.stdout}</div>
-                                <div className={'text-green-500'}>
-                                  {'✓ Passed'}
+          {/* Monaco Editor */}
+          <div className="flex-1">
+            <Editor
+              height="100%"
+              language={getLanguageForMonaco(selectedLanguage)}
+              value={code}
+              onChange={handleEditorChange}
+              onMount={handleEditorDidMount}
+              theme={isDarkMode ? "vs-dark" : "vs-light"}
+              options={{
+                fontSize: 14,
+                minimap: { enabled: false },
+                scrollBeyondLastLine: false,
+                automaticLayout: true,
+                tabSize: 2,
+                insertSpaces: true,
+                wordWrap: 'on',
+                lineNumbers: 'on',
+                glyphMargin: false,
+                folding: true,
+                lineDecorationsWidth: 10,
+                lineNumbersMinChars: 3,
+                renderLineHighlight: 'line',
+                selectOnLineNumbers: true,
+                roundedSelection: false,
+                readOnly: false,
+                cursorStyle: 'line',
+                mouseWheelZoom: true,
+              }}
+            />
+          </div>
+
+          {/* Bottom Panel - Test Results */}
+          <div className="h-64 border-t border-base-300 flex flex-col bg-base-100">
+            {/* Result Tabs */}
+            <div className="flex border-b border-base-300 bg-base-200">
+              <button
+                className={`px-4 py-2 text-sm font-medium border-b-2 ${
+                  activeRightTab === 'testcase'
+                    ? 'border-green-500 text-green-500'
+                    : 'border-transparent'
+                }`}
+                onClick={() => setActiveRightTab('testcase')}
+              >
+                Testcase
+              </button>
+              <button
+                className={`px-4 py-2 text-sm font-medium border-b-2 ${
+                  activeRightTab === 'result'
+                    ? 'border-green-500 text-green-500'
+                    : 'border-transparent'
+                }`}
+                onClick={() => setActiveRightTab('result')}
+              >
+                Result
+              </button>
+            </div>
+
+            {/* Result Content */}
+            <div className="flex-1 overflow-y-auto p-4">
+              {activeRightTab === 'testcase' && (
+                <div>
+                  {runResult ? (
+                    <div className="space-y-4">
+                      {runResult.success ? (
+                        <>
+                          <div className="alert alert-success">
+                            <span className="font-semibold">✅ All test cases passed!</span>
+                          </div>
+                          <div className="stats shadow">
+                            <div className="stat">
+                              <div className="stat-title">Runtime</div>
+                              <div className="stat-value text-sm">{runResult.runtime} sec</div>
+                            </div>
+                            <div className="stat">
+                              <div className="stat-title">Memory</div>
+                              <div className="stat-value text-sm">{runResult.memory} KB</div>
+                            </div>
+                          </div>
+                          <div className="space-y-2">
+                            {runResult.testCases.map((tc, i) => (
+                              <div key={i} className="card bg-base-200 card-compact">
+                                <div className="card-body font-mono text-xs">
+                                  <div><strong>Input:</strong> {tc.stdin}</div>
+                                  <div><strong>Expected:</strong> {tc.expected_output}</div>
+                                  <div><strong>Output:</strong> {tc.stdout}</div>
+                                  <div className="text-success">✓ Passed</div>
                                 </div>
                               </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    ) : (
-                      <div>
-                        <h4 className="font-bold">❌ Error</h4>
-                        <div className="mt-4 space-y-2">
-                          {runResult.testCases.map((tc, i) => (
-                            <div key={i} className={`p-3 rounded text-xs ${isDarkMode ? 'bg-gray-900' : 'bg-base-100'}`}>
-                              <div className="font-mono">
-                                <div><strong>Input:</strong> {tc.stdin}</div>
-                                <div><strong>Expected:</strong> {tc.expected_output}</div>
-                                <div><strong>Output:</strong> {tc.stdout}</div>
-                                <div className={tc.status_id==3 ? 'text-green-500' : 'text-red-500'}>
-                                  {tc.status_id==3 ? '✓ Passed' : '✗ Failed'}
+                            ))}
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <div className="alert alert-error">
+                            <span className="font-semibold">❌ Test Failed</span>
+                          </div>
+                          <div className="space-y-2">
+                            {runResult.testCases.map((tc, i) => (
+                              <div key={i} className="card bg-base-200 card-compact">
+                                <div className="card-body font-mono text-xs">
+                                  <div><strong>Input:</strong> {tc.stdin}</div>
+                                  <div><strong>Expected:</strong> {tc.expected_output}</div>
+                                  <div><strong>Output:</strong> {tc.stdout}</div>
+                                  <div className={tc.status_id == 3 ? 'text-success' : 'text-error'}>
+                                    {tc.status_id == 3 ? '✓ Passed' : '✗ Failed'}
+                                  </div>
                                 </div>
                               </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
+                            ))}
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8 text-base-content/50">
+                      Click "Run" to test your code
+                    </div>
+                  )}
                 </div>
-              ) : (
-                <div className={`text-gray-500 ${isDarkMode ? 'text-gray-400' : ''}`}>
-                  Click "Run" to test your code with the example test cases.
+              )}
+
+              {activeRightTab === 'result' && (
+                <div>
+                  {submitResult ? (
+                    <div className="space-y-4">
+                      <div className={`alert ${submitResult.accepted ? 'alert-success' : 'alert-error'}`}>
+                        <div>
+                          <h4 className="font-bold text-lg">
+                            {submitResult.accepted ? '🎉 Accepted' : '❌ ' + submitResult.error}
+                          </h4>
+                        </div>
+                      </div>
+                      <div className="stats shadow w-full">
+                        <div className="stat">
+                          <div className="stat-title">Test Cases</div>
+                          <div className="stat-value text-2xl">
+                            {submitResult.passedTestCases}/{submitResult.totalTestCases}
+                          </div>
+                        </div>
+                        <div className="stat">
+                          <div className="stat-title">Runtime</div>
+                          <div className="stat-value text-2xl">{submitResult.runtime} sec</div>
+                        </div>
+                        <div className="stat">
+                          <div className="stat-title">Memory</div>
+                          <div className="stat-value text-2xl">{submitResult.memory} KB</div>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-center py-8 text-base-content/50">
+                      Click "Submit" to evaluate your solution
+                    </div>
+                  )}
                 </div>
               )}
             </div>
-          )}
-
-          {activeRightTab === 'result' && (
-            <div className="flex-1 p-4 overflow-y-auto">
-              <h3 className="font-semibold mb-4">Submission Result</h3>
-              {submitResult ? (
-                <div className={`alert ${submitResult.accepted ? 'alert-success' : 'alert-error'} ${isDarkMode ? 'bg-gray-800 text-white' : ''}`}>
-                  <div>
-                    {submitResult.accepted ? (
-                      <div>
-                        <h4 className="font-bold text-lg">🎉 Accepted</h4>
-                        <div className="mt-4 space-y-2">
-                          <p>Test Cases Passed: {submitResult.passedTestCases}/{submitResult.totalTestCases}</p>
-                          <p>Runtime: {submitResult.runtime + " sec"}</p>
-                          <p>Memory: {submitResult.memory + "KB"} </p>
-                        </div>
-                      </div>
-                    ) : (
-                      <div>
-                        <h4 className="font-bold text-lg">❌ {submitResult.error}</h4>
-                        <div className="mt-4 space-y-2">
-                          <p>Test Cases Passed: {submitResult.passedTestCases}/{submitResult.totalTestCases}</p>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              ) : (
-                <div className={`text-gray-500 ${isDarkMode ? 'text-gray-400' : ''}`}>
-                  Click "Submit" to submit your solution for evaluation.
-                </div>
-              )}
-            </div>
-          )}
+          </div>
         </div>
       </div>
     </div>

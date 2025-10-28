@@ -43,25 +43,26 @@ function Admin() {
   };
 
   const fetchProblemStats = async () => {
-    try {
-      const response = await axiosClient.get('/problem/getAllProblem');
-      const problems = response.data;
+  try {
+    const response = await axiosClient.get('/problem/getAllProblem');
+    const problems = response.data;
 
-      const total = problems.length;
-      const easy = problems.filter(p => p.difficulty === 'Easy').length;
-      const medium = problems.filter(p => p.difficulty === 'Medium').length;
-      const hard = problems.filter(p => p.difficulty === 'Hard').length;
+    const total = problems.length;
+    // Added .toLowerCase() for case-insensitive comparison + optional chaining
+    const easy = problems.filter(p => p.difficulty?.toLowerCase() === 'easy').length;
+    const medium = problems.filter(p => p.difficulty?.toLowerCase() === 'medium').length;
+    const hard = problems.filter(p => p.difficulty?.toLowerCase() === 'hard').length;
 
-      setStats({
-        totalProblems: total,
-        easyProblems: easy,
-        mediumProblems: medium,
-        hardProblems: hard,
-      });
-    } catch (error) {
-      console.error('Error fetching problem data:', error);
-    }
-  };
+    setStats({
+      totalProblems: total,
+      easyProblems: easy,
+      mediumProblems: medium,
+      hardProblems: hard,
+    });
+  } catch (error) {
+    console.error('Error fetching problem data:', error);
+  }
+};
 
   useEffect(() => {
     fetchProblemStats();
