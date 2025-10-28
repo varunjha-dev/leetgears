@@ -6,7 +6,7 @@ import axiosClient from "../utils/axiosClient";
 import SubmissionHistory from "../components/SubmissionHistory";
 import ChatAi from '../components/ChatAi';
 import Editorial from '../components/Editorial';
-import { BrainCircuit, Sun, Moon, Play, Send, Code2, FileText, Sparkles, History as HistoryIcon, BookOpen, MessageSquare } from 'lucide-react';
+import { BrainCircuit, Sun, Moon, Play, Send, Code2, FileText, History as HistoryIcon, BookOpen, MessageSquare, GripHorizontal } from 'lucide-react';
 import { useSelector } from 'react-redux';
 
 const ProblemPage = () => {
@@ -36,8 +36,13 @@ const ProblemPage = () => {
   const [runResult, setRunResult] = useState(null);
   const [submitResult, setSubmitResult] = useState(null);
   const [activeLeftTab, setActiveLeftTab] = useState('description');
-  const [activeRightTab, setActiveRightTab] = useState('code');
+  const [activeRightTab, setActiveRightTab] = useState('testcase');
+  const [showBottomPanel, setShowBottomPanel] = useState(false); // NEW: Control bottom panel visibility
+  const [bottomPanelHeight, setBottomPanelHeight] = useState(256); // NEW: Default height in pixels
+  const [isResizing, setIsResizing] = useState(false); // NEW: Track resize state
+  
   const editorRef = useRef(null);
+  const containerRef = useRef(null); // NEW: Reference for container
   let { id } = useParams();
   const navigate = useNavigate();
   const { isAuthenticated } = useSelector((state) => state.auth);
@@ -78,6 +83,41 @@ const ProblemPage = () => {
     }
   }, [selectedLanguage, problem]);
 
+  // NEW: Handle resize functionality
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      if (!isResizing || !containerRef.current) return;
+      
+      const containerRect = containerRef.current.getBoundingClientRect();
+      const newHeight = containerRect.bottom - e.clientY;
+      
+      // Limit height between 150px and 80% of container height
+      const minHeight = 150;
+      const maxHeight = containerRect.height * 0.8;
+      const clampedHeight = Math.max(minHeight, Math.min(newHeight, maxHeight));
+      
+      setBottomPanelHeight(clampedHeight);
+    };
+
+    const handleMouseUp = () => {
+      setIsResizing(false);
+    };
+
+    if (isResizing) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+      document.body.style.cursor = 'ns-resize';
+      document.body.style.userSelect = 'none';
+    }
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+    };
+  }, [isResizing]);
+
   const handleEditorChange = (value) => {
     setCode(value || '');
   };
@@ -93,6 +133,8 @@ const ProblemPage = () => {
   const handleRun = async () => {
     setLoading(true);
     setRunResult(null);
+    setShowBottomPanel(true); // NEW: Show bottom panel
+    setActiveRightTab('testcase'); // NEW: Switch to testcase tab
 
     try {
       const response = await axiosClient.post(`/submission/run/${id}`, {
@@ -102,7 +144,6 @@ const ProblemPage = () => {
 
       setRunResult(response.data);
       setLoading(false);
-      setActiveRightTab('testcase');
     } catch (error) {
       console.error('Error running code:', error);
       setRunResult({
@@ -110,13 +151,14 @@ const ProblemPage = () => {
         error: 'Internal server error'
       });
       setLoading(false);
-      setActiveRightTab('testcase');
     }
   };
 
   const handleSubmitCode = async () => {
     setLoading(true);
     setSubmitResult(null);
+    setShowBottomPanel(true); // NEW: Show bottom panel
+    setActiveRightTab('result'); // NEW: Switch to result tab
 
     try {
       const response = await axiosClient.post(`/submission/submit/${id}`, {
@@ -126,12 +168,10 @@ const ProblemPage = () => {
 
       setSubmitResult(response.data);
       setLoading(false);
-      setActiveRightTab('result');
     } catch (error) {
       console.error('Error submitting code:', error);
       setSubmitResult(null);
       setLoading(false);
-      setActiveRightTab('result');
     }
   };
 
@@ -329,7 +369,7 @@ const ProblemPage = () => {
         </div>
 
         {/* Right Panel */}
-        <div className="w-1/2 flex flex-col bg-base-100">
+        <div className="w-1/2 flex flex-col bg-base-100" ref={containerRef}>
           {/* Code Editor Header */}
           <div className="flex items-center justify-between px-4 py-2 border-b border-base-300 bg-base-200">
             <select
@@ -363,7 +403,12 @@ const ProblemPage = () => {
           </div>
 
           {/* Monaco Editor */}
-          <div className="flex-1">
+          <div 
+            className="flex-1" 
+            style={{ 
+              height: showBottomPanel ? `calc(100% - ${bottomPanelHeight}px)` : '100%' 
+            }}
+          >
             <Editor
               height="100%"
               language={getLanguageForMonaco(selectedLanguage)}
@@ -394,133 +439,152 @@ const ProblemPage = () => {
             />
           </div>
 
-          {/* Bottom Panel - Test Results */}
-          <div className="h-64 border-t border-base-300 flex flex-col bg-base-100">
-            {/* Result Tabs */}
-            <div className="flex border-b border-base-300 bg-base-200">
-              <button
-                className={`px-4 py-2 text-sm font-medium border-b-2 ${
-                  activeRightTab === 'testcase'
-                    ? 'border-green-500 text-green-500'
-                    : 'border-transparent'
-                }`}
-                onClick={() => setActiveRightTab('testcase')}
+          {/* Bottom Panel - Test Results (NEW: Conditionally rendered) */}
+          {showBottomPanel && (
+            <div 
+              className="border-t border-base-300 flex flex-col bg-base-100"
+              style={{ height: `${bottomPanelHeight}px` }}
+            >
+              {/* Resize Handle */}
+              <div
+                className="h-1 bg-base-300 hover:bg-green-500 cursor-ns-resize flex items-center justify-center transition-colors"
+                onMouseDown={() => setIsResizing(true)}
               >
-                Testcase
-              </button>
-              <button
-                className={`px-4 py-2 text-sm font-medium border-b-2 ${
-                  activeRightTab === 'result'
-                    ? 'border-green-500 text-green-500'
-                    : 'border-transparent'
-                }`}
-                onClick={() => setActiveRightTab('result')}
-              >
-                Result
-              </button>
-            </div>
+                <GripHorizontal size={16} className="opacity-50" />
+              </div>
 
-            {/* Result Content */}
-            <div className="flex-1 overflow-y-auto p-4">
-              {activeRightTab === 'testcase' && (
-                <div>
-                  {runResult ? (
-                    <div className="space-y-4">
-                      {runResult.success ? (
-                        <>
-                          <div className="alert alert-success">
-                            <span className="font-semibold">✅ All test cases passed!</span>
-                          </div>
-                          <div className="stats shadow">
-                            <div className="stat">
-                              <div className="stat-title">Runtime</div>
-                              <div className="stat-value text-sm">{runResult.runtime} sec</div>
+              {/* Result Tabs */}
+              <div className="flex border-b border-base-300 bg-base-200">
+                <button
+                  className={`px-4 py-2 text-sm font-medium border-b-2 ${
+                    activeRightTab === 'testcase'
+                      ? 'border-green-500 text-green-500'
+                      : 'border-transparent'
+                  }`}
+                  onClick={() => setActiveRightTab('testcase')}
+                >
+                  Testcase
+                </button>
+                <button
+                  className={`px-4 py-2 text-sm font-medium border-b-2 ${
+                    activeRightTab === 'result'
+                      ? 'border-green-500 text-green-500'
+                      : 'border-transparent'
+                  }`}
+                  onClick={() => setActiveRightTab('result')}
+                >
+                  Result
+                </button>
+                <button
+                  className="ml-auto px-4 py-2 text-sm opacity-50 hover:opacity-100"
+                  onClick={() => setShowBottomPanel(false)}
+                >
+                  ✕
+                </button>
+              </div>
+
+              {/* Result Content */}
+              <div className="flex-1 overflow-y-auto p-4">
+                {activeRightTab === 'testcase' && (
+                  <div>
+                    {runResult ? (
+                      <div className="space-y-4">
+                        {runResult.success ? (
+                          <>
+                            <div className="alert alert-success">
+                              <span className="font-semibold">✅ All test cases passed!</span>
                             </div>
-                            <div className="stat">
-                              <div className="stat-title">Memory</div>
-                              <div className="stat-value text-sm">{runResult.memory} KB</div>
-                            </div>
-                          </div>
-                          <div className="space-y-2">
-                            {runResult.testCases.map((tc, i) => (
-                              <div key={i} className="card bg-base-200 card-compact">
-                                <div className="card-body font-mono text-xs">
-                                  <div><strong>Input:</strong> {tc.stdin}</div>
-                                  <div><strong>Expected:</strong> {tc.expected_output}</div>
-                                  <div><strong>Output:</strong> {tc.stdout}</div>
-                                  <div className="text-success">✓ Passed</div>
-                                </div>
+                            <div className="stats shadow">
+                              <div className="stat">
+                                <div className="stat-title">Runtime</div>
+                                <div className="stat-value text-sm">{runResult.runtime} sec</div>
                               </div>
-                            ))}
-                          </div>
-                        </>
-                      ) : (
-                        <>
-                          <div className="alert alert-error">
-                            <span className="font-semibold">❌ Test Failed</span>
-                          </div>
-                          <div className="space-y-2">
-                            {runResult.testCases.map((tc, i) => (
-                              <div key={i} className="card bg-base-200 card-compact">
-                                <div className="card-body font-mono text-xs">
-                                  <div><strong>Input:</strong> {tc.stdin}</div>
-                                  <div><strong>Expected:</strong> {tc.expected_output}</div>
-                                  <div><strong>Output:</strong> {tc.stdout}</div>
-                                  <div className={tc.status_id == 3 ? 'text-success' : 'text-error'}>
-                                    {tc.status_id == 3 ? '✓ Passed' : '✗ Failed'}
+                              <div className="stat">
+                                <div className="stat-title">Memory</div>
+                                <div className="stat-value text-sm">{runResult.memory} KB</div>
+                              </div>
+                            </div>
+                            <div className="space-y-2">
+                              {runResult.testCases.map((tc, i) => (
+                                <div key={i} className="card bg-base-200 card-compact">
+                                  <div className="card-body font-mono text-xs">
+                                    <div><strong>Input:</strong> {tc.stdin}</div>
+                                    <div><strong>Expected:</strong> {tc.expected_output}</div>
+                                    <div><strong>Output:</strong> {tc.stdout}</div>
+                                    <div className="text-success">✓ Passed</div>
                                   </div>
                                 </div>
-                              </div>
-                            ))}
-                          </div>
-                        </>
-                      )}
-                    </div>
-                  ) : (
-                    <div className="text-center py-8 text-base-content/50">
-                      Click "Run" to test your code
-                    </div>
-                  )}
-                </div>
-              )}
+                              ))}
+                            </div>
+                          </>
+                        ) : (
+                          <>
+                            <div className="alert alert-error">
+                              <span className="font-semibold">❌ Test Failed</span>
+                            </div>
+                            <div className="space-y-2">
+                              {runResult.testCases.map((tc, i) => (
+                                <div key={i} className="card bg-base-200 card-compact">
+                                  <div className="card-body font-mono text-xs">
+                                    <div><strong>Input:</strong> {tc.stdin}</div>
+                                    <div><strong>Expected:</strong> {tc.expected_output}</div>
+                                    <div><strong>Output:</strong> {tc.stdout}</div>
+                                    <div className={tc.status_id == 3 ? 'text-success' : 'text-error'}>
+                                      {tc.status_id == 3 ? '✓ Passed' : '✗ Failed'}
+                                    </div>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="text-center py-8 text-base-content/50">
+                        Running your code...
+                      </div>
+                    )}
+                  </div>
+                )}
 
-              {activeRightTab === 'result' && (
-                <div>
-                  {submitResult ? (
-                    <div className="space-y-4">
-                      <div className={`alert ${submitResult.accepted ? 'alert-success' : 'alert-error'}`}>
-                        <div>
-                          <h4 className="font-bold text-lg">
-                            {submitResult.accepted ? '🎉 Accepted' : '❌ ' + submitResult.error}
-                          </h4>
-                        </div>
-                      </div>
-                      <div className="stats shadow w-full">
-                        <div className="stat">
-                          <div className="stat-title">Test Cases</div>
-                          <div className="stat-value text-2xl">
-                            {submitResult.passedTestCases}/{submitResult.totalTestCases}
+                {activeRightTab === 'result' && (
+                  <div>
+                    {submitResult ? (
+                      <div className="space-y-4">
+                        <div className={`alert ${submitResult.accepted ? 'alert-success' : 'alert-error'}`}>
+                          <div>
+                            <h4 className="font-bold text-lg">
+                              {submitResult.accepted ? '🎉 Accepted' : '❌ ' + submitResult.error}
+                            </h4>
                           </div>
                         </div>
-                        <div className="stat">
-                          <div className="stat-title">Runtime</div>
-                          <div className="stat-value text-2xl">{submitResult.runtime} sec</div>
-                        </div>
-                        <div className="stat">
-                          <div className="stat-title">Memory</div>
-                          <div className="stat-value text-2xl">{submitResult.memory} KB</div>
+                        <div className="stats shadow w-full">
+                          <div className="stat">
+                            <div className="stat-title">Test Cases</div>
+                            <div className="stat-value text-2xl">
+                              {submitResult.passedTestCases}/{submitResult.totalTestCases}
+                            </div>
+                          </div>
+                          <div className="stat">
+                            <div className="stat-title">Runtime</div>
+                            <div className="stat-value text-2xl">{submitResult.runtime} sec</div>
+                          </div>
+                          <div className="stat">
+                            <div className="stat-title">Memory</div>
+                            <div className="stat-value text-2xl">{submitResult.memory} KB</div>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ) : (
-                    <div className="text-center py-8 text-base-content/50">
-                      Click "Submit" to evaluate your solution
-                    </div>
-                  )}
-                </div>
-              )}
+                    ) : (
+                      <div className="text-center py-8 text-base-content/50">
+                        Submitting your solution...
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
     </div>

@@ -5,7 +5,7 @@ import { z } from 'zod';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, NavLink } from 'react-router';
 import { registerUser } from '../authSlice';
-import { Eye, EyeOff, BrainCircuit, Sun, Moon } from 'lucide-react';
+import { Eye, EyeOff, BrainCircuit, Sun, Moon, UserPlus, Mail, Lock, User } from 'lucide-react';
 
 const signupSchema = z.object({
   firstName: z.string().min(3, "Minimum character should be 3"),
@@ -40,7 +40,7 @@ function Signup() {
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { isAuthenticated, loading } = useSelector((state) => state.auth); // Removed error as it wasn't used
+  const { isAuthenticated, loading } = useSelector((state) => state.auth);
 
   const {
     register,
@@ -59,102 +59,154 @@ function Signup() {
   };
 
   return (
-    <div className={`min-h-screen flex items-center justify-center p-4 ${isDarkMode ? 'bg-[#282828] text-white' : 'bg-base-200 text-gray-800'}`}> {/* Added a light bg for contrast */}
-      <div className="card w-96 bg-base-100 shadow-xl">
-        <div className={`card-body rounded-2xl ${isDarkMode ? 'bg-[#282828]' : 'bg-base-100'}`}>
-          <h2 className="card-title justify-center text-3xl mb-6">
-            <BrainCircuit size={30} className="text-green-500 mr-2" /> 
-            <span className={`${isDarkMode ? 'text-white' : 'text-gray-800'}`}>LeetGears</span>
-          </h2>
-          <form onSubmit={handleSubmit(onSubmit)}>
+    <div className="min-h-screen bg-base-200 flex items-center justify-center p-4">
+      {/* Theme Toggle - Fixed Position */}
+      <button
+        onClick={toggleDarkMode}
+        className="btn btn-circle btn-ghost fixed top-4 right-4 z-50"
+        aria-label="Toggle theme"
+      >
+        {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
+      </button>
+
+      <div className="card w-full max-w-md bg-base-100 shadow-2xl">
+        <div className="card-body">
+          {/* Logo & Title */}
+          <div className="text-center mb-6">
+            <div className="flex items-center justify-center gap-2 mb-2">
+              <BrainCircuit size={32} className="text-green-500" />
+              <h1 className="text-3xl font-bold">LeetGears</h1>
+            </div>
+            <p className="text-sm opacity-70">Create your account to get started</p>
+          </div>
+
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             {/* First Name Field */}
             <div className="form-control">
               <label className="label">
-                <span className={`label-text ${isDarkMode ? 'text-white' : 'text-gray-700'}`}>First Name</span>
+                <span className="label-text font-medium flex items-center gap-2">
+                  <User size={16} />
+                  First Name
+                </span>
               </label>
               <input
                 type="text"
-                placeholder="John"
-                className={`input input-bordered w-full ${errors.firstName ? 'input-error' : ''} ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : ''}`} 
+                placeholder="Enter your first name"
+                className={`input input-bordered w-full ${errors.firstName ? 'input-error' : ''}`}
                 {...register('firstName')}
               />
               {errors.firstName && (
-                <span className="text-error text-sm mt-1">{errors.firstName.message}</span>
+                <label className="label">
+                  <span className="label-text-alt text-error flex items-center gap-1">
+                    <AlertCircle size={12} />
+                    {errors.firstName.message}
+                  </span>
+                </label>
               )}
             </div>
 
             {/* Email Field */}
-            <div className="form-control mt-4">
+            <div className="form-control">
               <label className="label">
-                <span className={`label-text ${isDarkMode ? 'text-white' : 'text-gray-700'}`}>Email</span>
+                <span className="label-text font-medium flex items-center gap-2">
+                  <Mail size={16} />
+                  Email
+                </span>
               </label>
               <input
                 type="email"
-                placeholder="john@example.com"
-                className={`input input-bordered w-full ${errors.emailId ? 'input-error' : ''} ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : ''}`} // Ensure w-full for consistency
+                placeholder="Enter your email"
+                className={`input input-bordered w-full ${errors.emailId ? 'input-error' : ''}`}
                 {...register('emailId')}
               />
               {errors.emailId && (
-                <span className="text-error text-sm mt-1">{errors.emailId.message}</span>
+                <label className="label">
+                  <span className="label-text-alt text-error flex items-center gap-1">
+                    <AlertCircle size={12} />
+                    {errors.emailId.message}
+                  </span>
+                </label>
               )}
             </div>
 
             {/* Password Field with Toggle */}
-            <div className="form-control mt-4">
+            <div className="form-control">
               <label className="label">
-                <span className={`label-text ${isDarkMode ? 'text-white' : 'text-gray-700'}`}>Password</span>
+                <span className="label-text font-medium flex items-center gap-2">
+                  <Lock size={16} />
+                  Password
+                </span>
               </label>
               <div className="relative">
                 <input
                   type={showPassword ? "text" : "password"}
-                  placeholder="••••••••"
-                  // Added pr-10 (padding-right) to make space for the button
-                  className={`input input-bordered w-full pr-10 ${errors.password ? 'input-error' : ''} ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : ''}`}
+                  placeholder="Create a strong password"
+                  className={`input input-bordered w-full pr-12 ${errors.password ? 'input-error' : ''}`}
                   {...register('password')}
                 />
                 <button
                   type="button"
-                  className={`absolute top-1/2 right-3 transform -translate-y-1/2 ${isDarkMode ? 'text-gray-400 hover:text-gray-200' : 'text-gray-500 hover:text-gray-700'}`} // Added transform for better centering, styling
+                  className="absolute top-1/2 right-3 -translate-y-1/2 btn btn-ghost btn-sm btn-circle"
                   onClick={() => setShowPassword(!showPassword)}
-                  aria-label={showPassword ? "Hide password" : "Show password"} // Accessibility
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                  tabIndex={-1}
                 >
-                  {showPassword ? (
-                    <EyeOff size={20} />
-                  ) : (
-                    <Eye size={20} />
-                  )}
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
               {errors.password && (
-                <span className="text-error text-sm mt-1">{errors.password.message}</span>
+                <label className="label">
+                  <span className="label-text-alt text-error text-xs leading-relaxed">
+                    {errors.password.message}
+                  </span>
+                </label>
               )}
             </div>
 
+            {/* Password Requirements Info */}
+            <div className="rounded-lg p-3 bg-base-200 text-xs opacity-70">
+              <p className="font-semibold mb-1">Password must contain:</p>
+              <ul className="space-y-0.5 ml-4 list-disc">
+                <li>At least 8 characters</li>
+                <li>One uppercase letter</li>
+                <li>One number</li>
+                <li>One special character</li>
+              </ul>
+            </div>
+
             {/* Submit Button */}
-            <div className="form-control mt-8 flex justify-center"> 
+            <div className="form-control mt-6">
               <button
                 type="submit"
-                className={`btn ${isDarkMode ? 'bg-[#00A68A] hover:bg-[#008F77] border-none text-white' : 'btn-primary'} ${loading ? 'loading' : ''}`}
+                className="btn btn-success text-white gap-2"
                 disabled={loading}
               >
                 {loading ? (
                   <>
-                    <span className="loading loading-spinner"></span>
-                    Signing Up...
+                    <span className="loading loading-spinner loading-sm"></span>
+                    Creating Account...
                   </>
-                ) : 'Sign Up'}
+                ) : (
+                  <>
+                    <UserPlus size={18} />
+                    Sign Up
+                  </>
+                )}
               </button>
             </div>
           </form>
 
+          {/* Divider */}
+          <div className="divider text-xs opacity-50">OR</div>
+
           {/* Login Redirect */}
-          <div className="text-center mt-6"> {/* Increased mt for spacing */}
-            <span className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+          <div className="text-center">
+            <p className="text-sm">
               Already have an account?{' '}
-              <NavLink to="/login" className={`link ${isDarkMode ? 'text-green-400 hover:text-green-300' : 'link-primary'}`}>
-                Login
+              <NavLink to="/login" className="link link-primary font-semibold">
+                Login here
               </NavLink>
-            </span>
+            </p>
           </div>
         </div>
       </div>
