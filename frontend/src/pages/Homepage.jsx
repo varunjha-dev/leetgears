@@ -17,7 +17,7 @@ import {
   Award,
   Clock,
   BarChart3,
-  User
+  CircleUser 
 } from 'lucide-react';
 
 function Homepage() {
@@ -127,6 +127,19 @@ function Homepage() {
            filters.status !== 'all' || searchQuery !== '';
   };
 
+  const getDifficultyBadgeStyle = (difficulty) => {
+    switch (difficulty.toLowerCase()) {
+      case 'easy': 
+        return 'badge-success';
+      case 'medium': 
+        return 'badge-warning';
+      case 'hard': 
+        return 'badge-error';
+      default: 
+        return 'badge-neutral';
+    }
+  };
+
   const renderPaginationButtons = () => {
     const pageButtons = [];
     const maxVisible = 5;
@@ -200,9 +213,9 @@ function Homepage() {
             </li>
             <li>
               <div className="dropdown dropdown-end">
-                <div tabIndex={0} className="btn btn-ghost gap-2">
+                <div tabIndex={0} className="cursor-pointer gap-2 flex items-center">
                   <div className="relative">
-                    <User 
+                    <CircleUser 
                       size={40} 
                       className={`${isDarkMode ? 'text-green-500' : 'text-green-600'}`}
                       strokeWidth={2}
@@ -213,6 +226,7 @@ function Homepage() {
                   </div>
                   <span className="hidden md:inline">{user?.firstName}</span>
                 </div>
+
                 <ul className={`mt-3 p-2 shadow-xl menu menu-sm dropdown-content rounded-box w-52 ${
                   isDarkMode ? 'bg-gray-800' : 'bg-white'
                 }`}>
@@ -358,9 +372,9 @@ function Homepage() {
           isDarkMode ? 'bg-gray-800' : 'bg-white'
         }`}>
           <div className="card-body p-6">
-            <div className="flex flex-col lg:flex-row gap-4">
+            <div className="flex flex-col gap-4">
               {/* Search Bar */}
-              <div className="flex-1">
+              <div className="w-full">
                 <div className="relative">
                   <Search className={`absolute left-3 top-1/2 transform -translate-y-1/2 ${
                     isDarkMode ? 'text-gray-400' : 'text-gray-500'
@@ -373,7 +387,7 @@ function Homepage() {
                       setSearchQuery(e.target.value);
                       setCurrentPage(1);
                     }}
-                    className={`input input-bordered w-full pl-10 ${
+                    className={`input input-bordered w-full pl-3 ${
                       isDarkMode 
                         ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
                         : 'bg-white border-gray-300'
@@ -382,82 +396,105 @@ function Homepage() {
                 </div>
               </div>
 
-              {/* Filter Toggle Button (Mobile) */}
-              <button
-                onClick={() => setShowFilters(!showFilters)}
-                className="btn btn-outline lg:hidden gap-2"
-              >
-                <Filter size={20} />
-                Filters
-                {hasActiveFilters() && (
-                  <span className="badge badge-primary badge-sm">Active</span>
-                )}
-              </button>
-
-              {/* Filters */}
-              <div className={`flex flex-col lg:flex-row gap-4 ${showFilters ? 'block' : 'hidden lg:flex'}`}>
-                <select 
-                  className={`select select-bordered ${
-                    isDarkMode 
-                      ? 'bg-gray-700 border-gray-600 text-white' 
-                      : 'bg-white border-gray-300'
+              {/* Filters Row */}
+              <div className="flex flex-col sm:flex-row gap-3 w-full">
+                {/* Filter Toggle Button (Mobile Only) */}
+                <button
+                  onClick={() => setShowFilters(!showFilters)}
+                  className={`btn btn-outline sm:hidden gap-2 w-full ${
+                    isDarkMode ? 'border-gray-600 hover:bg-gray-700' : ''
                   }`}
-                  value={filters.status}
-                  onChange={(e) => {
-                    setFilters({...filters, status: e.target.value});
-                    setCurrentPage(1);
-                  }}
                 >
-                  <option value="all">All Status</option>
-                  <option value="solved">Solved</option>
-                </select>
+                  <Filter size={20} />
+                  <span>Filters</span>
+                  {hasActiveFilters() && (
+                    <span className="badge badge-primary badge-sm">Active</span>
+                  )}
+                </button>
 
-                <select 
-                  className={`select select-bordered ${
-                    isDarkMode 
-                      ? 'bg-gray-700 border-gray-600 text-white' 
-                      : 'bg-white border-gray-300'
-                  }`}
-                  value={filters.difficulty}
-                  onChange={(e) => {
-                    setFilters({...filters, difficulty: e.target.value});
-                    setCurrentPage(1);
-                  }}
-                >
-                  <option value="all">All Difficulties</option>
-                  <option value="easy">Easy</option>
-                  <option value="medium">Medium</option>
-                  <option value="hard">Hard</option>
-                </select>
+                {/* Filter Dropdowns */}
+                <div className={`
+                  ${showFilters ? 'flex' : 'hidden'} 
+                  sm:flex 
+                  flex-col sm:flex-row 
+                  gap-3 
+                  w-full
+                `}>
+                  {/* Status Filter */}
+                  <div className="flex-1 min-w-0">
+                    <select 
+                      className={`select select-bordered w-full text-sm sm:text-base ${
+                        isDarkMode 
+                          ? 'bg-gray-700 border-gray-600 text-white' 
+                          : 'bg-white border-gray-300'
+                      }`}
+                      value={filters.status}
+                      onChange={(e) => {
+                        setFilters({...filters, status: e.target.value});
+                        setCurrentPage(1);
+                      }}
+                    >
+                      <option value="all">Status</option>
+                      <option value="solved">Solved</option>
+                    </select>
+                  </div>
 
-                <select 
-                  className={`select select-bordered ${
-                    isDarkMode 
-                      ? 'bg-gray-700 border-gray-600 text-white' 
-                      : 'bg-white border-gray-300'
-                  }`}
-                  value={filters.tag}
-                  onChange={(e) => {
-                    setFilters({...filters, tag: e.target.value});
-                    setCurrentPage(1);
-                  }}
-                >
-                  <option value="all">All Tags</option>
-                  <option value="Array">Array</option>
-                  <option value="LinkedList">Linked List</option>
-                  <option value="Graph">Graph</option>
-                  <option value="DP">Dynamic Programming</option>
-                </select>
+                  {/* Difficulty Filter */}
+                  <div className="flex-1 min-w-0">
+                    <select 
+                      className={`select select-bordered w-full text-sm sm:text-base ${
+                        isDarkMode 
+                          ? 'bg-gray-700 border-gray-600 text-white' 
+                          : 'bg-white border-gray-300'
+                      }`}
+                      value={filters.difficulty}
+                      onChange={(e) => {
+                        setFilters({...filters, difficulty: e.target.value});
+                        setCurrentPage(1);
+                      }}
+                    >
+                      <option value="all">Difficulty</option>
+                      <option value="easy">Easy</option>
+                      <option value="medium">Medium</option>
+                      <option value="hard">Hard</option>
+                    </select>
+                  </div>
 
-                {hasActiveFilters() && (
-                  <button
-                    onClick={clearFilters}
-                    className="btn btn-ghost gap-2 text-red-500 hover:bg-red-500/10"
-                  >
-                    <X size={20} />
-                    Clear
-                  </button>
-                )}
+                  {/* Tag Filter */}
+                  <div className="flex-1 min-w-0">
+                    <select 
+                      className={`select select-bordered w-full text-sm sm:text-base ${
+                        isDarkMode 
+                          ? 'bg-gray-700 border-gray-600 text-white' 
+                          : 'bg-white border-gray-300'
+                      }`}
+                      value={filters.tag}
+                      onChange={(e) => {
+                        setFilters({...filters, tag: e.target.value});
+                        setCurrentPage(1);
+                      }}
+                    >
+                      <option value="all">Tags</option>
+                      <option value="Array">Array</option>
+                      <option value="LinkedList">Linked List</option>
+                      <option value="Graph">Graph</option>
+                      <option value="DP">DP</option>
+                    </select>
+                  </div>
+
+                  {/* Clear Filters Button */}
+                  {hasActiveFilters() && (
+                    <button
+                      onClick={clearFilters}
+                      className={`btn btn-ghost gap-2 text-red-500 hover:bg-red-500/10 sm:flex-none w-full sm:w-auto ${
+                        isDarkMode ? 'hover:bg-red-500/20' : ''
+                      }`}
+                    >
+                      <X size={20} />
+                      <span className="sm:inline">Clear</span>
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
 
@@ -649,18 +686,5 @@ function Homepage() {
     </div>
   );
 }
-
-const getDifficultyBadgeStyle = (difficulty) => {
-  switch (difficulty.toLowerCase()) {
-    case 'easy': 
-      return 'badge-success';
-    case 'medium': 
-      return 'badge-warning';
-    case 'hard': 
-      return 'badge-error';
-    default: 
-      return 'badge-neutral';
-  }
-};
 
 export default Homepage;
