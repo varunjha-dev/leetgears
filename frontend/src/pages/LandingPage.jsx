@@ -31,6 +31,10 @@ const LandingPage = () => {
     navigate('/login');
   };
 
+  const handlePremiumClick = () => {
+    navigate('/premium');
+  };
+
   return (
     <div className="min-h-screen bg-base-100">
       {/* Navbar */}
@@ -41,14 +45,14 @@ const LandingPage = () => {
             <span className="font-bold">LeetGears</span>
           </a>
         </div>
-        <div className="navbar-center hidden lg:flex">
+        {/* <div className="navbar-end hidden lg:flex">
           <ul className="menu menu-horizontal px-1 gap-2">
-            <li><a className="font-medium hover:text-green-500">Premium</a></li>
+            <li><a className="font-medium hover:text-green-500" onClick={handlePremiumClick} style={{cursor: 'pointer'}}>Premium</a></li>
             <li><a className="font-medium hover:text-green-500">Explore</a></li>
             <li><a className="font-medium hover:text-green-500">Product</a></li>
             <li><a className="font-medium hover:text-green-500">Developer</a></li>
           </ul>
-        </div>
+        </div> */}
         <div className="navbar-end gap-2">
           <button
             onClick={toggleDarkMode}
@@ -90,11 +94,11 @@ const LandingPage = () => {
                 {/* Stats */}
                 <div className="mt-6 grid grid-cols-2 gap-3">
                   <div className="stat bg-base-100 rounded-lg p-3 shadow-sm">
-                    <div className="stat-value text-2xl text-success">150+</div>
+                    <div className="stat-value text-2xl text-success">50+</div>
                     <div className="stat-title text-xs">Problems</div>
                   </div>
                   <div className="stat bg-base-100 rounded-lg p-3 shadow-sm">
-                    <div className="stat-value text-2xl text-info">50k+</div>
+                    <div className="stat-value text-2xl text-info">1k+</div>
                     <div className="stat-title text-xs">Users</div>
                   </div>
                 </div>
@@ -134,7 +138,7 @@ const LandingPage = () => {
                   <Code size={24} />
                 </div>
                 <div className="stat-title">Problems</div>
-                <div className="stat-value text-success">150+</div>
+                <div className="stat-value text-success">50+</div>
               </div>
               
               <div className="stat">
@@ -142,7 +146,7 @@ const LandingPage = () => {
                   <Users size={24} />
                 </div>
                 <div className="stat-title">Active Users</div>
-                <div className="stat-value text-info">50k+</div>
+                <div className="stat-value text-info">1k+</div>
               </div>
               
               <div className="stat">
@@ -150,7 +154,7 @@ const LandingPage = () => {
                   <TrendingUp size={24} />
                 </div>
                 <div className="stat-title">Success Rate</div>
-                <div className="stat-value text-warning">95%</div>
+                <div className="stat-value text-warning">90%</div>
               </div>
             </div>
           </div>
@@ -160,9 +164,14 @@ const LandingPage = () => {
       {/* Start Exploring Section */}
       <section className="py-20 bg-base-100">
         <div className="container mx-auto px-4 text-center max-w-4xl">
-          <div className="avatar placeholder mb-6">
-            <div className="bg-success text-white rounded-full w-24">
-              <GraduationCap size={48} />
+          <div className="flex justify-center mb-6">
+            <div className="relative">
+              {/* Green Circle Background */}
+              <div className="w-24 h-24 bg-success rounded-full"></div>
+              {/* Icon positioned on top */}
+              <div className="absolute inset-0 flex items-center justify-center">
+                <GraduationCap size={48} className="text-white" />
+              </div>
             </div>
           </div>
           <h2 className="text-4xl font-bold mb-4">Start Exploring</h2>
@@ -180,10 +189,8 @@ const LandingPage = () => {
             {/* Card 1 */}
             <div className="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow">
               <div className="card-body items-center text-center">
-                <div className="avatar placeholder mb-4">
-                  <div className="bg-info/20 text-info rounded-full w-16">
-                    <SquareStack size={32} />
-                  </div>
+                <div className="bg-info/20 rounded-full w-16 h-16 flex items-center justify-center mb-4">
+                  <SquareStack size={32} className="text-info" />
                 </div>
                 <h3 className="card-title text-2xl mb-2">Curated Library</h3>
                 <p className="opacity-70">
@@ -195,10 +202,8 @@ const LandingPage = () => {
             {/* Card 2 */}
             <div className="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow">
               <div className="card-body items-center text-center">
-                <div className="avatar placeholder mb-4">
-                  <div className="bg-success/20 text-success rounded-full w-16">
-                    <Globe size={32} />
-                  </div>
+                <div className="bg-success/20 rounded-full w-16 h-16 flex items-center justify-center mb-4">
+                  <Globe size={32} className="text-success" />
                 </div>
                 <h3 className="card-title text-2xl mb-2">Global Community</h3>
                 <p className="opacity-70">
@@ -210,10 +215,8 @@ const LandingPage = () => {
             {/* Card 3 */}
             <div className="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow">
               <div className="card-body items-center text-center">
-                <div className="avatar placeholder mb-4">
-                  <div className="bg-warning/20 text-warning rounded-full w-16">
-                    <Lightbulb size={32} />
-                  </div>
+                <div className="bg-warning/20 rounded-full w-16 h-16 flex items-center justify-center mb-4">
+                  <Lightbulb size={32} className="text-warning" />
                 </div>
                 <h3 className="card-title text-2xl mb-2">Master Key Concepts</h3>
                 <p className="opacity-70">
@@ -224,6 +227,7 @@ const LandingPage = () => {
           </div>
         </div>
       </section>
+
 
       {/* CTA Section */}
       <section className="py-20 bg-base-100">
@@ -251,12 +255,41 @@ const LandingPage = () => {
         </aside>
         <nav>
           <div className="grid grid-flow-col gap-4">
-            <a className="link link-hover">About</a>
-            <a className="link link-hover">Contact</a>
-            <a className="link link-hover">Privacy Policy</a>
-            <a className="link link-hover">Terms of Service</a>
+            <a 
+              href="GOOGLE_DRIVE_LINK_HERE" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="link link-hover"
+            >
+              About
+            </a>
+            <a 
+              href="https://www.linkedin.com/in/varunjha-dev/" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="link link-hover"
+            >
+              Contact
+            </a>
+            <a 
+              href="#" 
+              className="link link-hover"
+            >
+              Privacy Policy
+            </a>
+            <a 
+              href="#" 
+              className="link link-hover"
+            >
+              Terms of Service
+            </a>
+            <a className="font-medium hover:text-green-500" 
+          onClick={handlePremiumClick} style={{cursor: 'pointer'}}>
+            Support
+          </a>
           </div>
         </nav>
+
       </footer>
     </div>
   );
