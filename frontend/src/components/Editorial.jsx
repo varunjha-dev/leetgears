@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { Pause, Play, VideoOff, Search } from 'lucide-react';
 import { API_PATHS } from '../utils/constants';
-import '../index.css'; // Ensure Tailwind animations are available
+import '../index.css';
 
 const Editorial = ({ secureUrl, thumbnailUrl, duration, problemTitle, problemDescription }) => {
   const [videoId, setVideoId] = useState(null);

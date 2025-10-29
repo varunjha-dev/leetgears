@@ -225,7 +225,7 @@ const AdminDelete = () => {
                   placeholder="Search problems by title..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="input input-bordered w-full pl-12"
+                  className="input input-bordered w-full pl-3"
                 />
               </div>
 

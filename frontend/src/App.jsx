@@ -14,6 +14,7 @@ import AdminVideo from "./components/AdminVideo";
 import AdminUpload from "./components/AdminUpload"
 import AdminUpdate from "./components/AdminUpdate"
 import AdminProblemListForUpdate from "./components/AdminProblemListForUpdate";
+import Premium from "./pages/Premium";
 function App() {
   
   const dispatch = useDispatch();
@@ -33,6 +34,7 @@ function App() {
     <>
     <Routes>
       <Route path="/" element={isAuthenticated ?<Homepage></Homepage>:<LandingPage/>}></Route>
+      <Route path="/premium" element={<Premium />} />
       <Route path="/login" element={isAuthenticated?<Navigate to="/" />:<Login></Login>}></Route>
       <Route path="/signup" element={isAuthenticated?<Navigate to="/" />:<Signup></Signup>}></Route>
       <Route path="/admin" element={isAuthenticated && user?.role === 'admin' ? <Admin /> : <Navigate to="/" />} />
