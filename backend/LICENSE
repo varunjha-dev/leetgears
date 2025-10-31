@@ -1,0 +1,29 @@
+# LeetGears License
+
+Copyright (C) 2025 Varun Jha
+
+## License
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the **GNU Affero General Public License** as published
+by the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+## Additional Information
+
+**Network Use**: If you run a modified version of this program on a server
+and let other users communicate with it there, you must also make your
+modified source code available to those users under the AGPL.
+
+**Contact**: For alternative licensing (commercial, proprietary), contact
+varunjha.dev@gmail.com
+
+Full license text: https://www.gnu.org/licenses/agpl-3.0.en.html

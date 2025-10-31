@@ -1,13 +1,51 @@
 {
-  "name": "frontend",
-  "private": true,
-  "version": "0.0.0",
+  "name": "leetgears-frontend",
+  "private": false,
+  "version": "1.0.0",
+  "description": "Modern DSA learning platform frontend built with React, Vite, and Tailwind CSS",
   "type": "module",
+  "author": {
+    "name": "Varun Jha",
+    "email": "varunjha.dev@gmail.com",
+    "url": "https://varun-portfolio-55df5.web.app/"
+  },
+  "license": "AGPL-3.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/varunjha-dev/leetgears",
+    "directory": "frontend"
+  },
+  "bugs": {
+    "url": "https://github.com/varunjha-dev/leetgears/issues"
+  },
+  "homepage": "https://leetgears.com",
+  "keywords": [
+    "leetgears",
+    "dsa",
+    "data-structures",
+    "algorithms",
+    "coding-platform",
+    "react",
+    "vite",
+    "mern-stack",
+    "monaco-editor",
+    "ai-tutor",
+    "education",
+    "learning-platform"
+  ],
+  "engines": {
+    "node": ">=22.0.0",
+    "npm": ">=9.0.0"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "lint:fix": "eslint . --fix",
+    "preview": "vite preview",
+    "type-check": "tsc --noEmit",
+    "format": "prettier --write \"src/**/*.{js,jsx,json,css,md}\"",
+    "clean": "rm -rf dist node_modules"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
