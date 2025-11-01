@@ -15,6 +15,7 @@ import AdminUpload from "./components/AdminUpload"
 import AdminUpdate from "./components/AdminUpdate"
 import AdminProblemListForUpdate from "./components/AdminProblemListForUpdate";
 import Premium from "./pages/Premium";
+import AdminVideoAction from "./components/AdminVideoAction";
 function App() {
   
   const dispatch = useDispatch();
@@ -44,6 +45,7 @@ function App() {
       <Route path="/admin/upload/:problemId" element={isAuthenticated && user?.role === 'admin' ? <AdminUpload /> : <Navigate to="/" />} />
       <Route path="/admin/update" element={isAuthenticated && user?.role === 'admin' ? <AdminProblemListForUpdate /> : <Navigate to="/" />} />
       <Route path="/admin/update/:problemId" element={isAuthenticated && user?.role === 'admin' ? <AdminUpdate /> : <Navigate to="/" />} />
+      <Route path="/admin/video-action/:problemId" element={isAuthenticated && user?.role === 'admin' ? <AdminVideoAction /> : <Navigate to="/" />} />
       <Route path="/problem/:id" element={isAuthenticated ?<ProblemPage></ProblemPage>:<Navigate to="/signup" />}></Route>
     </Routes>
     </>

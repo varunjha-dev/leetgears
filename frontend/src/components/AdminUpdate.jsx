@@ -8,6 +8,7 @@ import AdminNavbar from './AdminNavbar';
 import { Plus, Minus, Edit, ArrowLeft, CheckCircle, AlertCircle, Code, FileText, Eye, EyeOff } from 'lucide-react';
 import JsonProblemForm from './JsonProblemForm';
 
+
 const problemSchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().min(1, "Description is required"),
@@ -32,6 +33,7 @@ const problemSchema = z.object({
   })).min(1, "At least one reference solution is required"),
 });
 
+
 function AdminUpdate() {
   const { problemId } = useParams();
   const navigate = useNavigate();
@@ -40,6 +42,7 @@ function AdminUpdate() {
   const [problemData, setProblemData] = useState(null);
   const [showJsonForm, setShowJsonForm] = useState(false);
   const [toast, setToast] = useState(null);
+
 
   const { register, handleSubmit, control, setValue, formState: { errors } } = useForm({
     resolver: zodResolver(problemSchema),
@@ -55,30 +58,36 @@ function AdminUpdate() {
     }
   });
 
+
   const { fields: visibleFields, append: appendVisible, remove: removeVisible } = useFieldArray({
     control,
     name: 'visibleTestCases',
   });
+
 
   const { fields: hiddenFields, append: appendHidden, remove: removeHidden } = useFieldArray({
     control,
     name: 'hiddenTestCases',
   });
 
+
   const { fields: startCodeFields, append: appendStartCode, remove: removeStartCode } = useFieldArray({
     control,
     name: 'startCode',
   });
+
 
   const { fields: referenceSolutionFields, append: appendReferenceSolution, remove: removeReferenceSolution } = useFieldArray({
     control,
     name: 'referenceSolution',
   });
 
+
   const showToast = (message, type = 'success') => {
     setToast({ message, type });
     setTimeout(() => setToast(null), 4000);
   };
+
 
   useEffect(() => {
     const fetchProblemData = async () => {
@@ -102,6 +111,7 @@ function AdminUpdate() {
     fetchProblemData();
   }, [problemId, setValue]);
 
+
   const onSubmit = async (data) => {
     setSubmitting(true);
     try {
@@ -115,10 +125,12 @@ function AdminUpdate() {
     setSubmitting(false);
   };
 
+
   const onFormSubmitSuccess = () => {
     showToast("Problem updated successfully!", 'success');
     setTimeout(() => navigate('/admin'), 1500);
   };
+
 
   if (loading) {
     return (
@@ -133,6 +145,7 @@ function AdminUpdate() {
       </>
     );
   }
+
 
   return (
     <>
@@ -155,6 +168,7 @@ function AdminUpdate() {
           </div>
         </div>
       )}
+
 
       <div className="min-h-screen py-8 bg-base-200">
         <div className="container mx-auto px-4 max-w-5xl">
@@ -180,6 +194,7 @@ function AdminUpdate() {
                 </div>
               </div>
 
+
               {/* Toggle JSON/Form Button */}
               <button 
                 onClick={() => setShowJsonForm(!showJsonForm)} 
@@ -190,6 +205,7 @@ function AdminUpdate() {
               </button>
             </div>
           </div>
+
 
           {showJsonForm && problemData ? (
             <JsonProblemForm 
@@ -209,18 +225,21 @@ function AdminUpdate() {
                     <h2 className="text-xl font-bold">Basic Details</h2>
                   </div>
 
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {/* Title */}
                     <div className="form-control md:col-span-2">
                       <label className="label">
                         <span className="label-text font-medium">Problem Title</span>
                       </label>
-                      <input 
-                        type="text" 
-                        placeholder="Enter problem title" 
-                        {...register('title')} 
-                        className={`input input-bordered ${errors.title ? 'input-error' : ''}`}
-                      />
+                      <div className="mt-2">
+                        <input 
+                          type="text" 
+                          placeholder="Enter problem title" 
+                          {...register('title')} 
+                          className={`input input-bordered w-full ${errors.title ? 'input-error' : ''}`}
+                        />
+                      </div>
                       {errors.title && (
                         <span className="text-error text-sm mt-1 flex items-center gap-1">
                           <AlertCircle size={14} />
@@ -229,16 +248,19 @@ function AdminUpdate() {
                       )}
                     </div>
 
+
                     {/* Description */}
                     <div className="form-control md:col-span-2">
                       <label className="label">
                         <span className="label-text font-medium">Description</span>
                       </label>
-                      <textarea 
-                        placeholder="Enter problem description" 
-                        {...register('description')} 
-                        className={`textarea textarea-bordered h-32 ${errors.description ? 'textarea-error' : ''}`}
-                      />
+                      <div className="mt-2">
+                        <textarea 
+                          placeholder="Enter problem description" 
+                          {...register('description')} 
+                          className={`textarea textarea-bordered h-32 w-full ${errors.description ? 'textarea-error' : ''}`}
+                        />
+                      </div>
                       {errors.description && (
                         <span className="text-error text-sm mt-1 flex items-center gap-1">
                           <AlertCircle size={14} />
@@ -247,33 +269,40 @@ function AdminUpdate() {
                       )}
                     </div>
 
+
                     {/* Difficulty */}
                     <div className="form-control">
                       <label className="label">
                         <span className="label-text font-medium">Difficulty Level</span>
                       </label>
-                      <select {...register('difficulty')} className="select select-bordered">
-                        <option value="easy">Easy</option>
-                        <option value="medium">Medium</option>
-                        <option value="hard">Hard</option>
-                      </select>
+                      <div className="mt-2">
+                        <select {...register('difficulty')} className="select select-bordered w-full">
+                          <option value="easy">Easy</option>
+                          <option value="medium">Medium</option>
+                          <option value="hard">Hard</option>
+                        </select>
+                      </div>
                     </div>
+
 
                     {/* Tags */}
                     <div className="form-control">
                       <label className="label">
                         <span className="label-text font-medium">Category Tags</span>
                       </label>
-                      <select {...register('tags')} className="select select-bordered">
-                        <option value="Array">Array</option>
-                        <option value="LinkedList">Linked List</option>
-                        <option value="Graph">Graph</option>
-                        <option value="DP">Dynamic Programming</option>
-                      </select>
+                      <div className="mt-2">
+                        <select {...register('tags')} className="select select-bordered w-full">
+                          <option value="Array">Array</option>
+                          <option value="LinkedList">Linked List</option>
+                          <option value="Graph">Graph</option>
+                          <option value="DP">Dynamic Programming</option>
+                        </select>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
+
 
               {/* Visible Test Cases Card */}
               <div className="card bg-base-100 shadow-xl">
@@ -292,6 +321,7 @@ function AdminUpdate() {
                     </button>
                   </div>
 
+
                   <div className="space-y-4">
                     {visibleFields.map((field, index) => (
                       <div key={field.id} className="p-4 rounded-lg bg-base-200">
@@ -308,16 +338,19 @@ function AdminUpdate() {
                           )}
                         </div>
 
+
                         <div className="grid grid-cols-1 gap-3">
                           <div className="form-control">
                             <label className="label">
                               <span className="label-text text-sm">Input</span>
                             </label>
-                            <textarea 
-                              placeholder="Enter input" 
-                              {...register(`visibleTestCases.${index}.input`)} 
-                              className="textarea textarea-bordered textarea-sm"
-                            />
+                            <div className="mt-2">
+                              <textarea 
+                                placeholder="Enter input" 
+                                {...register(`visibleTestCases.${index}.input`)} 
+                                className="textarea textarea-bordered textarea-sm w-full"
+                              />
+                            </div>
                             {errors.visibleTestCases?.[index]?.input && (
                               <span className="text-error text-xs mt-1">
                                 {errors.visibleTestCases[index].input.message}
@@ -325,15 +358,18 @@ function AdminUpdate() {
                             )}
                           </div>
 
+
                           <div className="form-control">
                             <label className="label">
                               <span className="label-text text-sm">Output</span>
                             </label>
-                            <textarea 
-                              placeholder="Enter expected output" 
-                              {...register(`visibleTestCases.${index}.output`)} 
-                              className="textarea textarea-bordered textarea-sm"
-                            />
+                            <div className="mt-2">
+                              <textarea 
+                                placeholder="Enter expected output" 
+                                {...register(`visibleTestCases.${index}.output`)} 
+                                className="textarea textarea-bordered textarea-sm w-full"
+                              />
+                            </div>
                             {errors.visibleTestCases?.[index]?.output && (
                               <span className="text-error text-xs mt-1">
                                 {errors.visibleTestCases[index].output.message}
@@ -341,15 +377,18 @@ function AdminUpdate() {
                             )}
                           </div>
 
+
                           <div className="form-control">
                             <label className="label">
                               <span className="label-text text-sm">Explanation</span>
                             </label>
-                            <textarea 
-                              placeholder="Explain the test case" 
-                              {...register(`visibleTestCases.${index}.explanation`)} 
-                              className="textarea textarea-bordered textarea-sm"
-                            />
+                            <div className="mt-2">
+                              <textarea 
+                                placeholder="Explain the test case" 
+                                {...register(`visibleTestCases.${index}.explanation`)} 
+                                className="textarea textarea-bordered textarea-sm w-full"
+                              />
+                            </div>
                             {errors.visibleTestCases?.[index]?.explanation && (
                               <span className="text-error text-xs mt-1">
                                 {errors.visibleTestCases[index].explanation.message}
@@ -362,6 +401,7 @@ function AdminUpdate() {
                   </div>
                 </div>
               </div>
+
 
               {/* Hidden Test Cases Card */}
               <div className="card bg-base-100 shadow-xl">
@@ -380,6 +420,7 @@ function AdminUpdate() {
                     </button>
                   </div>
 
+
                   <div className="space-y-4">
                     {hiddenFields.map((field, index) => (
                       <div key={field.id} className="p-4 rounded-lg bg-base-200">
@@ -396,16 +437,19 @@ function AdminUpdate() {
                           )}
                         </div>
 
+
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                           <div className="form-control">
                             <label className="label">
                               <span className="label-text text-sm">Input</span>
                             </label>
-                            <textarea 
-                              placeholder="Enter input" 
-                              {...register(`hiddenTestCases.${index}.input`)} 
-                              className="textarea textarea-bordered textarea-sm"
-                            />
+                            <div className="mt-2">
+                              <textarea 
+                                placeholder="Enter input" 
+                                {...register(`hiddenTestCases.${index}.input`)} 
+                                className="textarea textarea-bordered textarea-sm w-full"
+                              />
+                            </div>
                             {errors.hiddenTestCases?.[index]?.input && (
                               <span className="text-error text-xs mt-1">
                                 {errors.hiddenTestCases[index].input.message}
@@ -413,15 +457,18 @@ function AdminUpdate() {
                             )}
                           </div>
 
+
                           <div className="form-control">
                             <label className="label">
                               <span className="label-text text-sm">Output</span>
                             </label>
-                            <textarea 
-                              placeholder="Enter expected output" 
-                              {...register(`hiddenTestCases.${index}.output`)} 
-                              className="textarea textarea-bordered textarea-sm"
-                            />
+                            <div className="mt-2">
+                              <textarea 
+                                placeholder="Enter expected output" 
+                                {...register(`hiddenTestCases.${index}.output`)} 
+                                className="textarea textarea-bordered textarea-sm w-full"
+                              />
+                            </div>
                             {errors.hiddenTestCases?.[index]?.output && (
                               <span className="text-error text-xs mt-1">
                                 {errors.hiddenTestCases[index].output.message}
@@ -434,6 +481,7 @@ function AdminUpdate() {
                   </div>
                 </div>
               </div>
+
 
               {/* Start Code Templates Card */}
               <div className="card bg-base-100 shadow-xl">
@@ -452,6 +500,7 @@ function AdminUpdate() {
                     </button>
                   </div>
 
+
                   <div className="space-y-4">
                     {startCodeFields.map((field, index) => (
                       <div key={field.id} className="p-4 rounded-lg bg-base-200">
@@ -468,30 +517,36 @@ function AdminUpdate() {
                           )}
                         </div>
 
+
                         <div className="grid grid-cols-1 gap-3">
                           <div className="form-control">
                             <label className="label">
                               <span className="label-text text-sm">Language</span>
                             </label>
-                            <select 
-                              {...register(`startCode.${index}.language`)} 
-                              className="select select-bordered select-sm"
-                            >
-                              <option value="javascript">JavaScript</option>
-                              <option value="java">Java</option>
-                              <option value="cpp">C++</option>
-                            </select>
+                            <div className="mt-2">
+                              <select 
+                                {...register(`startCode.${index}.language`)} 
+                                className="select select-bordered select-sm w-full"
+                              >
+                                <option value="javascript">JavaScript</option>
+                                <option value="java">Java</option>
+                                <option value="cpp">C++</option>
+                              </select>
+                            </div>
                           </div>
+
 
                           <div className="form-control">
                             <label className="label">
                               <span className="label-text text-sm">Initial Code</span>
                             </label>
-                            <textarea 
-                              placeholder="Enter starter code" 
-                              {...register(`startCode.${index}.initialCode`)} 
-                              className="textarea textarea-bordered h-40 font-mono text-sm"
-                            />
+                            <div className="mt-2">
+                              <textarea 
+                                placeholder="Enter starter code" 
+                                {...register(`startCode.${index}.initialCode`)} 
+                                className="textarea textarea-bordered h-40 font-mono text-sm w-full"
+                              />
+                            </div>
                             {errors.startCode?.[index]?.initialCode && (
                               <span className="text-error text-xs mt-1">
                                 {errors.startCode[index].initialCode.message}
@@ -504,6 +559,7 @@ function AdminUpdate() {
                   </div>
                 </div>
               </div>
+
 
               {/* Reference Solutions Card */}
               <div className="card bg-base-100 shadow-xl">
@@ -522,6 +578,7 @@ function AdminUpdate() {
                     </button>
                   </div>
 
+
                   <div className="space-y-4">
                     {referenceSolutionFields.map((field, index) => (
                       <div key={field.id} className="p-4 rounded-lg bg-base-200">
@@ -538,30 +595,36 @@ function AdminUpdate() {
                           )}
                         </div>
 
+
                         <div className="grid grid-cols-1 gap-3">
                           <div className="form-control">
                             <label className="label">
                               <span className="label-text text-sm">Language</span>
                             </label>
-                            <select 
-                              {...register(`referenceSolution.${index}.language`)} 
-                              className="select select-bordered select-sm"
-                            >
-                              <option value="javascript">JavaScript</option>
-                              <option value="java">Java</option>
-                              <option value="cpp">C++</option>
-                            </select>
+                            <div className="mt-2">
+                              <select 
+                                {...register(`referenceSolution.${index}.language`)} 
+                                className="select select-bordered select-sm w-full"
+                              >
+                                <option value="javascript">JavaScript</option>
+                                <option value="java">Java</option>
+                                <option value="cpp">C++</option>
+                              </select>
+                            </div>
                           </div>
+
 
                           <div className="form-control">
                             <label className="label">
                               <span className="label-text text-sm">Complete Solution Code</span>
                             </label>
-                            <textarea 
-                              placeholder="Enter complete solution" 
-                              {...register(`referenceSolution.${index}.completeCode`)} 
-                              className="textarea textarea-bordered h-40 font-mono text-sm"
-                            />
+                            <div className="mt-2">
+                              <textarea 
+                                placeholder="Enter complete solution" 
+                                {...register(`referenceSolution.${index}.completeCode`)} 
+                                className="textarea textarea-bordered h-40 font-mono text-sm w-full"
+                              />
+                            </div>
                             {errors.referenceSolution?.[index]?.completeCode && (
                               <span className="text-error text-xs mt-1">
                                 {errors.referenceSolution[index].completeCode.message}
@@ -574,6 +637,7 @@ function AdminUpdate() {
                   </div>
                 </div>
               </div>
+
 
               {/* Submit Buttons */}
               <div className="flex gap-3 pt-4">
@@ -610,5 +674,6 @@ function AdminUpdate() {
     </>
   );
 }
+
 
 export default AdminUpdate;

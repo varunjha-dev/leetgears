@@ -8,6 +8,7 @@ import React, { useState } from 'react';
 import JsonProblemForm from './JsonProblemForm';
 import { Plus, Minus, ArrowLeft, CheckCircle, AlertCircle, FileText, Eye, EyeOff, Code } from 'lucide-react';
 
+
 // Zod schema matching the problem schema
 const problemSchema = z.object({
   title: z.string().min(1, 'Title is required'),
@@ -41,11 +42,13 @@ const problemSchema = z.object({
   ).length(3, 'All three languages required')
 });
 
+
 function AdminPanel() {
   const navigate = useNavigate();
   const [showJsonForm, setShowJsonForm] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [toast, setToast] = useState(null);
+
 
   const {
     register,
@@ -70,6 +73,7 @@ function AdminPanel() {
     }
   });
 
+
   const {
     fields: visibleFields,
     append: appendVisible,
@@ -78,6 +82,7 @@ function AdminPanel() {
     control,
     name: 'visibleTestCases'
   });
+
 
   const {
     fields: hiddenFields,
@@ -88,10 +93,12 @@ function AdminPanel() {
     name: 'hiddenTestCases'
   });
 
+
   const showToast = (message, type = 'success') => {
     setToast({ message, type });
     setTimeout(() => setToast(null), 4000);
   };
+
 
   const onSubmit = async (data) => {
     setSubmitting(true);
@@ -105,10 +112,12 @@ function AdminPanel() {
     setSubmitting(false);
   };
 
+
   const onFormSubmitSuccess = () => {
     showToast('Problem created successfully!', 'success');
     setTimeout(() => navigate('/admin'), 1500);
   };
+
 
   return (
     <>
@@ -131,6 +140,7 @@ function AdminPanel() {
           </div>
         </div>
       )}
+
 
       <div className="min-h-screen py-8 bg-base-200">
         <div className="container mx-auto px-4 max-w-5xl">
@@ -156,6 +166,7 @@ function AdminPanel() {
                 </div>
               </div>
 
+
               {/* Toggle JSON/Form Button */}
               <button 
                 onClick={() => setShowJsonForm(!showJsonForm)} 
@@ -166,6 +177,7 @@ function AdminPanel() {
               </button>
             </div>
           </div>
+
 
           {showJsonForm ? (
             <JsonProblemForm onSubmitSuccess={onFormSubmitSuccess} isUpdateMode={false} />
@@ -180,17 +192,20 @@ function AdminPanel() {
                     <h2 className="text-xl font-bold">Basic Information</h2>
                   </div>
 
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {/* Title */}
                     <div className="form-control md:col-span-2">
                       <label className="label">
                         <span className="label-text font-medium">Problem Title</span>
                       </label>
-                      <input
-                        {...register('title')}
-                        placeholder="Enter problem title"
-                        className={`input input-bordered ${errors.title ? 'input-error' : ''}`}
-                      />
+                      <div className="mt-2">
+                        <input
+                          {...register('title')}
+                          placeholder="Enter problem title"
+                          className={`input input-bordered w-full ${errors.title ? 'input-error' : ''}`}
+                        />
+                      </div>
                       {errors.title && (
                         <span className="text-error text-sm mt-1 flex items-center gap-1">
                           <AlertCircle size={14} />
@@ -199,16 +214,19 @@ function AdminPanel() {
                       )}
                     </div>
 
+
                     {/* Description */}
                     <div className="form-control md:col-span-2">
                       <label className="label">
                         <span className="label-text font-medium">Description</span>
                       </label>
-                      <textarea
-                        {...register('description')}
-                        placeholder="Enter problem description"
-                        className={`textarea textarea-bordered h-32 ${errors.description ? 'textarea-error' : ''}`}
-                      />
+                      <div className="mt-2">
+                        <textarea
+                          {...register('description')}
+                          placeholder="Enter problem description"
+                          className={`textarea textarea-bordered h-32 w-full ${errors.description ? 'textarea-error' : ''}`}
+                        />
+                      </div>
                       {errors.description && (
                         <span className="text-error text-sm mt-1 flex items-center gap-1">
                           <AlertCircle size={14} />
@@ -217,33 +235,40 @@ function AdminPanel() {
                       )}
                     </div>
 
+
                     {/* Difficulty */}
                     <div className="form-control">
                       <label className="label">
                         <span className="label-text font-medium">Difficulty Level</span>
                       </label>
-                      <select {...register('difficulty')} className="select select-bordered">
-                        <option value="easy">Easy</option>
-                        <option value="medium">Medium</option>
-                        <option value="hard">Hard</option>
-                      </select>
+                      <div className="mt-2">
+                        <select {...register('difficulty')} className="select select-bordered w-full">
+                          <option value="easy">Easy</option>
+                          <option value="medium">Medium</option>
+                          <option value="hard">Hard</option>
+                        </select>
+                      </div>
                     </div>
+
 
                     {/* Tags */}
                     <div className="form-control">
                       <label className="label">
                         <span className="label-text font-medium">Category Tags</span>
                       </label>
-                      <select {...register('tags')} className="select select-bordered">
-                        <option value="Array">Array</option>
-                        <option value="LinkedList">Linked List</option>
-                        <option value="Graph">Graph</option>
-                        <option value="DP">Dynamic Programming</option>
-                      </select>
+                      <div className="mt-2">
+                        <select {...register('tags')} className="select select-bordered w-full">
+                          <option value="Array">Array</option>
+                          <option value="LinkedList">Linked List</option>
+                          <option value="Graph">Graph</option>
+                          <option value="DP">Dynamic Programming</option>
+                        </select>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
+
 
               {/* Visible Test Cases Card */}
               <div className="card bg-base-100 shadow-xl">
@@ -262,6 +287,7 @@ function AdminPanel() {
                     </button>
                   </div>
 
+
                   <div className="space-y-4">
                     {visibleFields.map((field, index) => (
                       <div key={field.id} className="p-4 rounded-lg bg-base-200">
@@ -278,16 +304,19 @@ function AdminPanel() {
                           )}
                         </div>
 
+
                         <div className="grid grid-cols-1 gap-3">
                           <div className="form-control">
                             <label className="label">
                               <span className="label-text text-sm">Input</span>
                             </label>
-                            <textarea
-                              {...register(`visibleTestCases.${index}.input`)}
-                              placeholder="Enter input"
-                              className="textarea textarea-bordered textarea-sm"
-                            />
+                            <div className="mt-2">
+                              <textarea
+                                {...register(`visibleTestCases.${index}.input`)}
+                                placeholder="Enter input"
+                                className="textarea textarea-bordered textarea-sm w-full"
+                              />
+                            </div>
                             {errors.visibleTestCases?.[index]?.input && (
                               <span className="text-error text-xs mt-1">
                                 {errors.visibleTestCases[index].input.message}
@@ -295,15 +324,18 @@ function AdminPanel() {
                             )}
                           </div>
 
+
                           <div className="form-control">
                             <label className="label">
                               <span className="label-text text-sm">Output</span>
                             </label>
-                            <textarea
-                              {...register(`visibleTestCases.${index}.output`)}
-                              placeholder="Enter expected output"
-                              className="textarea textarea-bordered textarea-sm"
-                            />
+                            <div className="mt-2">
+                              <textarea
+                                {...register(`visibleTestCases.${index}.output`)}
+                                placeholder="Enter expected output"
+                                className="textarea textarea-bordered textarea-sm w-full"
+                              />
+                            </div>
                             {errors.visibleTestCases?.[index]?.output && (
                               <span className="text-error text-xs mt-1">
                                 {errors.visibleTestCases[index].output.message}
@@ -311,15 +343,18 @@ function AdminPanel() {
                             )}
                           </div>
 
+
                           <div className="form-control">
                             <label className="label">
                               <span className="label-text text-sm">Explanation</span>
                             </label>
-                            <textarea
-                              {...register(`visibleTestCases.${index}.explanation`)}
-                              placeholder="Explain the test case"
-                              className="textarea textarea-bordered textarea-sm"
-                            />
+                            <div className="mt-2">
+                              <textarea
+                                {...register(`visibleTestCases.${index}.explanation`)}
+                                placeholder="Explain the test case"
+                                className="textarea textarea-bordered textarea-sm w-full"
+                              />
+                            </div>
                             {errors.visibleTestCases?.[index]?.explanation && (
                               <span className="text-error text-xs mt-1">
                                 {errors.visibleTestCases[index].explanation.message}
@@ -332,6 +367,7 @@ function AdminPanel() {
                   </div>
                 </div>
               </div>
+
 
               {/* Hidden Test Cases Card */}
               <div className="card bg-base-100 shadow-xl">
@@ -350,6 +386,7 @@ function AdminPanel() {
                     </button>
                   </div>
 
+
                   <div className="space-y-4">
                     {hiddenFields.map((field, index) => (
                       <div key={field.id} className="p-4 rounded-lg bg-base-200">
@@ -366,16 +403,19 @@ function AdminPanel() {
                           )}
                         </div>
 
+
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                           <div className="form-control">
                             <label className="label">
                               <span className="label-text text-sm">Input</span>
                             </label>
-                            <textarea
-                              {...register(`hiddenTestCases.${index}.input`)}
-                              placeholder="Enter input"
-                              className="textarea textarea-bordered textarea-sm"
-                            />
+                            <div className="mt-2">
+                              <textarea
+                                {...register(`hiddenTestCases.${index}.input`)}
+                                placeholder="Enter input"
+                                className="textarea textarea-bordered textarea-sm w-full"
+                              />
+                            </div>
                             {errors.hiddenTestCases?.[index]?.input && (
                               <span className="text-error text-xs mt-1">
                                 {errors.hiddenTestCases[index].input.message}
@@ -383,15 +423,18 @@ function AdminPanel() {
                             )}
                           </div>
 
+
                           <div className="form-control">
                             <label className="label">
                               <span className="label-text text-sm">Output</span>
                             </label>
-                            <textarea
-                              {...register(`hiddenTestCases.${index}.output`)}
-                              placeholder="Enter expected output"
-                              className="textarea textarea-bordered textarea-sm"
-                            />
+                            <div className="mt-2">
+                              <textarea
+                                {...register(`hiddenTestCases.${index}.output`)}
+                                placeholder="Enter expected output"
+                                className="textarea textarea-bordered textarea-sm w-full"
+                              />
+                            </div>
                             {errors.hiddenTestCases?.[index]?.output && (
                               <span className="text-error text-xs mt-1">
                                 {errors.hiddenTestCases[index].output.message}
@@ -405,6 +448,7 @@ function AdminPanel() {
                 </div>
               </div>
 
+
               {/* Code Templates Card */}
               <div className="card bg-base-100 shadow-xl">
                 <div className="card-body p-6">
@@ -413,6 +457,7 @@ function AdminPanel() {
                     <h2 className="text-xl font-bold">Code Templates & Solutions</h2>
                   </div>
 
+
                   <div className="space-y-6">
                     {[0, 1, 2].map((index) => {
                       const language = index === 0 ? 'C++' : index === 1 ? 'Java' : 'JavaScript';
@@ -420,16 +465,19 @@ function AdminPanel() {
                         <div key={index} className="p-4 rounded-lg bg-base-200">
                           <h3 className="font-semibold mb-3">{language}</h3>
 
+
                           <div className="space-y-4">
                             <div className="form-control">
                               <label className="label">
                                 <span className="label-text text-sm">Initial Code (Starter Template)</span>
                               </label>
-                              <textarea
-                                {...register(`startCode.${index}.initialCode`)}
-                                placeholder={`Enter starter code for ${language}`}
-                                className="textarea textarea-bordered h-32 font-mono text-sm"
-                              />
+                              <div className="mt-2">
+                                <textarea
+                                  {...register(`startCode.${index}.initialCode`)}
+                                  placeholder={`Enter starter code for ${language}`}
+                                  className="textarea textarea-bordered h-32 font-mono text-sm w-full"
+                                />
+                              </div>
                               {errors.startCode?.[index]?.initialCode && (
                                 <span className="text-error text-xs mt-1">
                                   {errors.startCode[index].initialCode.message}
@@ -437,15 +485,18 @@ function AdminPanel() {
                               )}
                             </div>
 
+
                             <div className="form-control">
                               <label className="label">
                                 <span className="label-text text-sm">Reference Solution (Complete Code)</span>
                               </label>
-                              <textarea
-                                {...register(`referenceSolution.${index}.completeCode`)}
-                                placeholder={`Enter complete solution for ${language}`}
-                                className="textarea textarea-bordered h-32 font-mono text-sm"
-                              />
+                              <div className="mt-2">
+                                <textarea
+                                  {...register(`referenceSolution.${index}.completeCode`)}
+                                  placeholder={`Enter complete solution for ${language}`}
+                                  className="textarea textarea-bordered h-32 font-mono text-sm w-full"
+                                />
+                              </div>
                               {errors.referenceSolution?.[index]?.completeCode && (
                                 <span className="text-error text-xs mt-1">
                                   {errors.referenceSolution[index].completeCode.message}
@@ -459,6 +510,7 @@ function AdminPanel() {
                   </div>
                 </div>
               </div>
+
 
               {/* Submit Buttons */}
               <div className="flex gap-3 pt-4">
@@ -495,5 +547,6 @@ function AdminPanel() {
     </>
   );
 }
+
 
 export default AdminPanel;
