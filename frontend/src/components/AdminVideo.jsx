@@ -254,19 +254,12 @@ const AdminVideo = () => {
                         <td>
                           <div className="flex justify-center gap-2">
                             <NavLink 
-                              to={`/admin/upload/${problem._id}`}
-                              className="btn btn-sm btn-success gap-2"
+                              to={`/admin/video-action/${problem._id}`}
+                              className="btn btn-sm btn-primary gap-2"
                             >
-                              <Upload size={16} />
-                              Upload
+                              <Video size={16} />
+                              Proceed
                             </NavLink>
-                            <button
-                              onClick={() => openDeleteModal(problem)}
-                              className="btn btn-sm btn-error gap-2"
-                            >
-                              <Trash2 size={16} />
-                              Delete
-                            </button>
                           </div>
                         </td>
                       </tr>

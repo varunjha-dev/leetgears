@@ -176,7 +176,7 @@ const LandingPage = () => {
           </div>
           <h2 className="text-4xl font-bold mb-4">Start Exploring</h2>
           <p className="text-xl opacity-70 max-w-2xl mx-auto">
-            Explore is a well-organized tool that helps you get the most out of your programming journey.
+            Explore a well-organized tool that helps you get the most out of your programming journey.
           </p>
         </div>
       </section>

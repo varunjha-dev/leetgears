@@ -140,52 +140,52 @@ function Homepage() {
     }
   };
 
-  const renderPaginationButtons = () => {
-    const pageButtons = [];
-    const maxVisible = 5;
-    let startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2));
-    let endPage = Math.min(totalPages, startPage + maxVisible - 1);
+  // const renderPaginationButtons = () => {
+  //   const pageButtons = [];
+  //   const maxVisible = 5;
+  //   let startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2));
+  //   let endPage = Math.min(totalPages, startPage + maxVisible - 1);
 
-    if (endPage - startPage < maxVisible - 1) {
-      startPage = Math.max(1, endPage - maxVisible + 1);
-    }
+  //   if (endPage - startPage < maxVisible - 1) {
+  //     startPage = Math.max(1, endPage - maxVisible + 1);
+  //   }
 
-    if (startPage > 1) {
-      pageButtons.push(
-        <button key={1} onClick={() => handlePageChange(1)} className="join-item btn btn-sm">
-          1
-        </button>
-      );
-      if (startPage > 2) {
-        pageButtons.push(<span key="ellipsis1" className="join-item btn btn-sm btn-disabled">...</span>);
-      }
-    }
+  //   if (startPage > 1) {
+  //     pageButtons.push(
+  //       <button key={1} onClick={() => handlePageChange(1)} className="join-item btn btn-sm">
+  //         1
+  //       </button>
+  //     );
+  //     if (startPage > 2) {
+  //       pageButtons.push(<span key="ellipsis1" className="join-item btn btn-sm btn-disabled">...</span>);
+  //     }
+  //   }
 
-    for (let i = startPage; i <= endPage; i++) {
-      pageButtons.push(
-        <button
-          key={i}
-          onClick={() => handlePageChange(i)}
-          className={`join-item btn btn-sm ${currentPage === i ? 'btn-active btn-primary' : ''}`}
-        >
-          {i}
-        </button>
-      );
-    }
+  //   for (let i = startPage; i <= endPage; i++) {
+  //     pageButtons.push(
+  //       <button
+  //         key={i}
+  //         onClick={() => handlePageChange(i)}
+  //         className={`join-item btn btn-sm ${currentPage === i ? 'btn-active btn-primary' : ''}`}
+  //       >
+  //         {i}
+  //       </button>
+  //     );
+  //   }
 
-    if (endPage < totalPages) {
-      if (endPage < totalPages - 1) {
-        pageButtons.push(<span key="ellipsis2" className="join-item btn btn-sm btn-disabled">...</span>);
-      }
-      pageButtons.push(
-        <button key={totalPages} onClick={() => handlePageChange(totalPages)} className="join-item btn btn-sm">
-          {totalPages}
-        </button>
-      );
-    }
+  //   if (endPage < totalPages) {
+  //     if (endPage < totalPages - 1) {
+  //       pageButtons.push(<span key="ellipsis2" className="join-item btn btn-sm btn-disabled">...</span>);
+  //     }
+  //     pageButtons.push(
+  //       <button key={totalPages} onClick={() => handlePageChange(totalPages)} className="join-item btn btn-sm">
+  //         {totalPages}
+  //       </button>
+  //     );
+  //   }
 
-    return pageButtons;
-  };
+  //   return pageButtons;
+  // };
 
   return (
     <div className={`min-h-screen ${isDarkMode ? 'bg-[#282828]' : 'bg-gray-100'}`}>
@@ -574,19 +574,26 @@ function Homepage() {
                   <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                     <div className="flex-1">
                       <div className="flex items-start gap-3">
-                        <div className={`mt-1 ${
+                        <div className={`mt-1 relative ${
                           solvedProblems.some(sp => sp._id === problem._id)
                             ? 'text-green-500'
                             : isDarkMode ? 'text-gray-600' : 'text-gray-300'
                         }`}>
-                          <CheckCircle 
-                            size={20} 
-                            className={
-                              solvedProblems.some(sp => sp._id === problem._id)
-                                ? 'fill-green-500'
-                                : ''
-                            }
-                          />
+                          {solvedProblems.some(sp => sp._id === problem._id) ? (
+                            <div className="relative">
+                              <CheckCircle 
+                                size={24} 
+                                strokeWidth={2.5}
+                                className="relative stroke-green-500"
+                              />
+                            </div>
+                          ) : (
+                            <CheckCircle 
+                              size={24} 
+                              strokeWidth={1.5}
+                              className="opacity-40"
+                            />
+                          )}
                         </div>
                         <div className="flex-1">
                           <NavLink 
@@ -598,7 +605,7 @@ function Homepage() {
                             {problem.title}
                           </NavLink>
                           <div className="flex flex-wrap items-center gap-2 mt-2">
-                            <div className={`badge badge-sm ${getDifficultyBadgeStyle(problem.difficulty)}`}>
+                            <div className={`badge badge-sm ${getDifficultyBadgeStyle(problem.difficulty)}`}> 
                               {problem.difficulty}
                             </div>
                             <div className="badge badge-sm badge-info badge-outline">
@@ -669,7 +676,6 @@ function Homepage() {
               >
                 «
               </button>
-              {renderPaginationButtons()}
               <button 
                 onClick={() => handlePageChange(currentPage + 1)}
                 disabled={currentPage === totalPages}
@@ -682,6 +688,7 @@ function Homepage() {
             </div>
           </div>
         )}
+
       </div>
     </div>
   );
