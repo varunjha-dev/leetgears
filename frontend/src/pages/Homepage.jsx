@@ -611,12 +611,14 @@ function Homepage() {
                             <div className="badge badge-sm badge-info badge-outline">
                               {problem.tags}
                             </div>
-                            {solvedProblems.some(sp => sp._id === problem._id) && (
-                              <div className="badge badge-sm badge-success gap-1">
-                                <CheckCircle size={12} />
-                                Solved
-                              </div>
-                            )}
+                            {solvedProblems.some(sp => sp._id === problem._id) 
+                            // && (
+                            //   <div className="badge badge-sm badge-success gap-1">
+                            //     <CheckCircle size={12} />
+                            //     Solved
+                            //   </div>
+                            // )
+                            }
                           </div>
                         </div>
                       </div>
